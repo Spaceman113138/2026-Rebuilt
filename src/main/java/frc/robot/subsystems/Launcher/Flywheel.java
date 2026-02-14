@@ -14,15 +14,17 @@ import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.MotorAlignmentValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
+import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
+@Logged
 class Flywheel extends SubsystemBase {
 
   private TalonFX leftFlywheelMotor = new TalonFX(Constants.leftFlyweelId, CANBus.roboRIO());
   private TalonFX rightFlywheelMotor = new TalonFX(Constants.rightFlywheelId, CANBus.roboRIO());
 
-  private double motorToFlywheelRatio = 15/18;
+  private static final double motorToFlywheelRatio = 15.0/18.0;
 
   private ControlRequest velocityControlRequest = new VelocityTorqueCurrentFOC(motorToFlywheelRatio);
 
