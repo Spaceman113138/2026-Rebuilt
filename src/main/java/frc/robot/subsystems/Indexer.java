@@ -22,7 +22,7 @@ public class Indexer extends SubsystemBase {
 
   /** Creates a new Indexer. */
   public Indexer() {
-    ovalMotor.configure(motorConfig(), ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    ovalMotor.configure(motorConfig().inverted(true), ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     kickerMotor.configure(motorConfig(), ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
   }
@@ -30,8 +30,7 @@ public class Indexer extends SubsystemBase {
   private SparkFlexConfig motorConfig() {
     SparkFlexConfig config = new SparkFlexConfig();
     config.idleMode(IdleMode.kCoast)
-          .inverted(false)
-          .smartCurrentLimit(20);
+          .smartCurrentLimit(40);
     return config;
   }
 
@@ -40,7 +39,7 @@ public class Indexer extends SubsystemBase {
     // This method will be called once per scheduler run
   }
 
-  public Command idleComand() {
+  public Command idleCommand() {
     return startRun(() -> {
         ovalMotor.stopMotor();
         kickerMotor.stopMotor();
@@ -49,8 +48,8 @@ public class Indexer extends SubsystemBase {
 
   public Command runIndexer() {
     return startRun(() -> {
-      ovalMotor.setVoltage(6.0);
-      kickerMotor.setVoltage(6.0);
+      ovalMotor.setVoltage(12.0);
+      kickerMotor.setVoltage(12.0);
     }, () -> {});
   }
 }

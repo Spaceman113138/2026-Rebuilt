@@ -39,8 +39,8 @@ public class FieldData {
             case 'R' -> redInactiveFirst = true;
             case 'B' -> redInactiveFirst = false;
             default -> {
-            // If we have invalid game data, assume hub is active.
-            return true;
+                // If we have invalid game data, assume hub is active.
+                return true;
             }
         }
 

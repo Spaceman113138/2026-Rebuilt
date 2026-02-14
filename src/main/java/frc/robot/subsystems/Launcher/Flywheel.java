@@ -4,10 +4,13 @@
 
 package frc.robot.subsystems.Launcher;
 
+import java.util.function.DoubleSupplier;
+
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.ControlRequest;
 import com.ctre.phoenix6.controls.Follower;
+import com.ctre.phoenix6.controls.NeutralOut;
 import com.ctre.phoenix6.controls.VelocityTorqueCurrentFOC;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
@@ -15,6 +18,7 @@ import com.ctre.phoenix6.signals.MotorAlignmentValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.epilogue.Logged;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
@@ -26,7 +30,8 @@ class Flywheel extends SubsystemBase {
 
   private static final double motorToFlywheelRatio = 15.0/18.0;
 
-  private ControlRequest velocityControlRequest = new VelocityTorqueCurrentFOC(motorToFlywheelRatio);
+  private VelocityTorqueCurrentFOC velocityControlRequest = new VelocityTorqueCurrentFOC(motorToFlywheelRatio).withSlot(0);
+  private NeutralOut neutralRequest = new NeutralOut(); 
 
 
   /** Creates a new Flywheel. */
@@ -35,6 +40,7 @@ class Flywheel extends SubsystemBase {
     leftFlywheelMotor.getConfigurator().apply(motorConfig());
     rightFlywheelMotor.getConfigurator().apply(motorConfig());
     rightFlywheelMotor.setControl(new Follower(Constants.leftFlyweelId, MotorAlignmentValue.Opposed));
+
   }
 
   private TalonFXConfiguration motorConfig() {
@@ -49,10 +55,16 @@ class Flywheel extends SubsystemBase {
       .withNeutralMode(NeutralModeValue.Coast)
       .withInverted(InvertedValue.Clockwise_Positive);
 
-    motorConfig.ClosedLoopGeneral
-      .withContinuousWrap(false);
-    
-    motorConfig.Feedback.withSensorToMechanismRatio(motorToFlywheelRatio);
+    motorConfig.Feedback
+      .withSensorToMechanismRatio(motorToFlywheelRatio);
+
+    motorConfig.Slot0
+      .withKP(0.0)
+      .withKD(0.0)
+      .withKS(0.0)
+      .withKV(0.0);
+
+
 
     return motorConfig;
 
@@ -62,4 +74,14 @@ class Flywheel extends SubsystemBase {
   public void periodic() {
     // This method will be called once per scheduler run
   }
+
+  protected Command idleCommand() {
+    return startRun(
+      () -> leftFlywheelMotor.setControl(neutralRequest), ()->{});
+  }
+
+  protected Command runAtVelocity(DoubleSupplier desiredVelocity) {
+    return startRun(() -> leftFlywheelMotor.setControl(velocityControlRequest.withVelocity(desiredVelocity.getAsDouble())), ()->{});
+  }
+
 }
