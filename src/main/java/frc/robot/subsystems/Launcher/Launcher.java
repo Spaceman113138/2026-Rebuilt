@@ -6,6 +6,7 @@ package frc.robot.subsystems.Launcher;
 
 import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.subsystems.CommandSwerveDrivetrain;
 
 @Logged
 public class Launcher extends SubsystemBase {
@@ -14,9 +15,13 @@ public class Launcher extends SubsystemBase {
   private final Flywheel flywheel = new Flywheel();
   private final Hood hood = new Hood();
   private final Turret turret = new Turret();
+  private CommandSwerveDrivetrain drivetrain;
 
   /** Creates a new Launcher. */
-  public Launcher() {}
+  public Launcher(CommandSwerveDrivetrain Drivetrain) {
+    drivetrain = Drivetrain;
+    drivetrain.getEstimatedVelocity();
+  }
 
   @Override
   public void periodic() {
