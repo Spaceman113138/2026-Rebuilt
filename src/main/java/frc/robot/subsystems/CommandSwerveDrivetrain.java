@@ -18,6 +18,7 @@ import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
@@ -279,6 +280,18 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
                 m_hasAppliedOperatorPerspective = true;
             });
         }
+    }
+
+    public Pose2d getEstimatedPose() {
+        return getState().Pose;
+    }
+
+    public ChassisSpeeds getEstimatedVelocity() {
+        return getState().Speeds;
+    }
+
+    public Translation2d getFieldReletiveVelocity() {
+        return new Translation2d(getState().Speeds.vxMetersPerSecond, getState().Speeds.vyMetersPerSecond).rotateBy(getRotation3d().toRotation2d());
     }
 
     private void startSimThread() {

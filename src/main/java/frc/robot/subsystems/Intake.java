@@ -39,8 +39,8 @@ public class Intake extends SubsystemBase {
   private NeutralOut neutralRequest = new NeutralOut();
   private VoltageOut voltageRequest = new VoltageOut(0);
 
-  private static final double storePosition = 0.25;
-  private static final double deployPosition = 0.0;
+  private static final double storePosition = -0.3;
+  private static final double deployPosition = 0.3;
 
 
   /** Creates a new Intake. */
@@ -54,11 +54,12 @@ public class Intake extends SubsystemBase {
       .inverted(false)
       .positionConversionFactor(0.5)
       .velocityConversionFactor(0.5)
-      .zeroCentered(false);
+      .zeroCentered(true)
+      .zeroOffset(0.08923568);
     pivotConfig.closedLoop
       .feedbackSensor(FeedbackSensor.kAbsoluteEncoder)
-      .p(0.0)
-      .d(0.0)
+      .p(4.0)
+      .d(0.2)
       .feedForward
         .kA(0.0)
         .kV(0.0)
@@ -77,8 +78,8 @@ public class Intake extends SubsystemBase {
     rollerConfig.CurrentLimits
       .withSupplyCurrentLimitEnable(true)
       .withStatorCurrentLimitEnable(true)
-      .withSupplyCurrentLimit(20)
-      .withStatorCurrentLimit(40);
+      .withSupplyCurrentLimit(30)
+      .withStatorCurrentLimit(60);
     
     rollerMotor.getConfigurator().apply(rollerConfig);
     
@@ -95,7 +96,7 @@ public class Intake extends SubsystemBase {
   public Command storeCommand() {
     return startRun(
       () -> {
-        pivotController.setSetpoint(storePosition, ControlType.kMAXMotionPositionControl);
+        pivotController.setSetpoint(storePosition, ControlType.kPosition);
         rollerMotor.setControl(neutralRequest);
       }, 
       () -> {});
@@ -104,7 +105,7 @@ public class Intake extends SubsystemBase {
   public Command deployCommand() {
     return startRun(
       () -> {
-        pivotController.setSetpoint(deployPosition, ControlType.kMAXMotionPositionControl);
+        pivotController.setSetpoint(deployPosition, ControlType.kPosition);
         rollerMotor.setControl(neutralRequest);
       }, 
       () -> {});
@@ -114,7 +115,7 @@ public class Intake extends SubsystemBase {
     return startRun(
       () -> {
         pivotController.setSetpoint(deployPosition, ControlType.kMAXMotionPositionControl);
-        rollerMotor.setControl(voltageRequest.withOutput(4.0));
+        rollerMotor.setControl(voltageRequest.withOutput(8.0));
       }, 
       () -> {});
   }
