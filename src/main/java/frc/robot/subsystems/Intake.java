@@ -58,7 +58,7 @@ public class Intake extends SubsystemBase {
       .zeroOffset(0.08923568);
     pivotConfig.closedLoop
       .feedbackSensor(FeedbackSensor.kAbsoluteEncoder)
-      .p(4.0)
+      .p(25.0)
       .d(0.2)
       .feedForward
         .kA(0.0)
