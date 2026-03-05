@@ -8,15 +8,14 @@ import com.revrobotics.PersistMode;
 import com.revrobotics.ResetMode;
 import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
-import com.revrobotics.spark.config.SparkFlexConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
-
+import com.revrobotics.spark.config.SparkFlexConfig;
 import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
-@Logged 
+@Logged
 public class Indexer extends SubsystemBase {
 
   private SparkFlex ovalMotor = new SparkFlex(Constants.ovalId, MotorType.kBrushless);
@@ -24,15 +23,14 @@ public class Indexer extends SubsystemBase {
 
   /** Creates a new Indexer. */
   public Indexer() {
-    ovalMotor.configure(motorConfig().inverted(true), ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    ovalMotor.configure(
+        motorConfig().inverted(true), ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     kickerMotor.configure(motorConfig(), ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-
   }
 
   private SparkFlexConfig motorConfig() {
     SparkFlexConfig config = new SparkFlexConfig();
-    config.idleMode(IdleMode.kCoast)
-          .smartCurrentLimit(40);
+    config.idleMode(IdleMode.kCoast).smartCurrentLimit(40);
     return config;
   }
 
@@ -42,16 +40,20 @@ public class Indexer extends SubsystemBase {
   }
 
   public Command idleCommand() {
-    return startRun(() -> {
-        ovalMotor.stopMotor();
-        kickerMotor.stopMotor();
-      }, () -> {});
+    return startRun(
+        () -> {
+          ovalMotor.stopMotor();
+          kickerMotor.stopMotor();
+        },
+        () -> {});
   }
 
   public Command runIndexer() {
-    return startRun(() -> {
-      ovalMotor.setVoltage(12.0);
-      kickerMotor.setVoltage(12.0);
-    }, () -> {});
+    return startRun(
+        () -> {
+          ovalMotor.setVoltage(12.0);
+          kickerMotor.setVoltage(12.0);
+        },
+        () -> {});
   }
 }

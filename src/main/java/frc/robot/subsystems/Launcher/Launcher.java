@@ -21,7 +21,6 @@ import frc.robot.subsystems.Launcher.ShotCalculator.ShootingSolution;
 @Logged
 public class Launcher extends SubsystemBase {
 
-
   private final Flywheel flywheel = new Flywheel();
   private final Hood hood = new Hood();
   private final Turret turret = new Turret();
@@ -39,7 +38,6 @@ public class Launcher extends SubsystemBase {
     SmartDashboard.putData("Hood", hood);
     SmartDashboard.putData("Turret", turret);
     SmartDashboard.putData("Launcher", this);
-
   }
 
   @Override
@@ -50,34 +48,37 @@ public class Launcher extends SubsystemBase {
 
   private Command expose(Command internal) {
     var proxied = internal.asProxy();
-        proxied.addRequirements(this);
-        return proxied;
+    proxied.addRequirements(this);
+    return proxied;
   }
 
   public Command runToZero() {
-    return expose(
-      flywheel.idle()
-      .alongWith(hood.targetAngle(() -> Rotation.of(0)))
-      .alongWith(turret.targetAngle(() -> Rotation.of(0)))
-    ).withName("Run to zero");
+    return expose(flywheel.idle()
+            .alongWith(hood.targetAngle(() -> Rotation.of(0)))
+            .alongWith(turret.targetAngle(() -> Rotation.of(0))))
+        .withName("Run to zero");
   }
 
   public Command targetHub() {
     return expose(run(() -> {
-      var curentPose = drivetrain.getEstimatedPose();
-      var turretPose = curentPose.transformBy(new Transform2d(turretOffset.rotateBy(curentPose.getRotation()), Rotation2d.kZero));
-      bestShootingSolution = ShotCalculator.getStaticHubSolution(turretPose);
-    }).alongWith(targetBest())).withName("TargetHub");
+              var curentPose = drivetrain.getEstimatedPose();
+              var turretPose = curentPose.transformBy(
+                  new Transform2d(turretOffset.rotateBy(curentPose.getRotation()), Rotation2d.kZero));
+              bestShootingSolution = ShotCalculator.getStaticHubSolution(turretPose);
+            })
+            .alongWith(targetBest()))
+        .withName("TargetHub");
   }
 
   private Command targetBest() {
     return flywheel.runAtVelocity(() -> bestShootingSolution.flywheelSpeed())
-           .alongWith(hood.targetAngle(() -> bestShootingSolution.hoodAngle()))
-           .alongWith(turret.targetAngle(() -> bestShootingSolution.turretAngle()));
+        .alongWith(hood.targetAngle(() -> bestShootingSolution.hoodAngle()))
+        .alongWith(turret.targetAngle(() -> bestShootingSolution.turretAngle()));
   }
 
   private Pose2d getTurretPose() {
     var curentPose = drivetrain.getEstimatedPose();
-    return curentPose.transformBy(new Transform2d(turretOffset.rotateBy(curentPose.getRotation()), Rotation2d.kZero));
+    return curentPose.transformBy(
+        new Transform2d(turretOffset.rotateBy(curentPose.getRotation()), Rotation2d.kZero));
   }
 }

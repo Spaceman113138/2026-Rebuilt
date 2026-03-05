@@ -4,14 +4,13 @@
 
 package frc.robot.subsystems;
 
-import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
+import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkFlexConfig;
-
 import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -26,28 +25,27 @@ public class Climber extends SubsystemBase {
   @SuppressWarnings("removal")
   public Climber() {
 
- SparkFlexConfig config = new SparkFlexConfig();
-    config.idleMode(IdleMode.kCoast)
-          .smartCurrentLimit(40);
-          config.closedLoop.pid(0, 0, 0);
-          config.closedLoop.maxMotion.cruiseVelocity(0).maxAcceleration(0);
+    SparkFlexConfig config = new SparkFlexConfig();
+    config.idleMode(IdleMode.kCoast).smartCurrentLimit(40);
+    config.closedLoop.pid(0, 0, 0);
+    config.closedLoop.maxMotion.cruiseVelocity(0).maxAcceleration(0);
 
- climberMotor.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-    
+    climberMotor.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
   }
 
   @Override
-  public void periodic() {
-  }
+  public void periodic() {}
 
-   public Command idleCommand() {
-    return startRun(() -> {
-        climberMotor.stopMotor();
-         }, () -> {});
+  public Command idleCommand() {
+    return startRun(
+        () -> {
+          climberMotor.stopMotor();
+        },
+        () -> {});
   }
 
   public Command runClimbCommand(double setPoint) {
-    return run(() -> climberMotor.getClosedLoopController().setSetpoint(setPoint, ControlType.kMAXMotionPositionControl));
-
+    return run(() ->
+        climberMotor.getClosedLoopController().setSetpoint(setPoint, ControlType.kMAXMotionPositionControl));
   }
 }

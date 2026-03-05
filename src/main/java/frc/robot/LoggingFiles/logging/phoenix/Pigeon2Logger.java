@@ -68,30 +68,27 @@ public class Pigeon2Logger extends ClassSpecificLogger<Pigeon2> {
     }
 
     private static final Map<Pigeon2, Consumer<ByteBuffer>> registry = new HashMap<>();
-    private static final Function<Pigeon2, Consumer<ByteBuffer>> mappingFunction =
-        value -> {
-          var yaw = value.getYaw(false);
-          var pitch = value.getPitch(false);
-          var roll = value.getRoll(false);
-          var angularVelX = value.getAngularVelocityXWorld(false);
-          var angularVelY = value.getAngularVelocityYWorld(false);
-          var angularVelZ = value.getAngularVelocityZWorld(false);
-          var temperature = value.getTemperature(false);
+    private static final Function<Pigeon2, Consumer<ByteBuffer>> mappingFunction = value -> {
+      var yaw = value.getYaw(false);
+      var pitch = value.getPitch(false);
+      var roll = value.getRoll(false);
+      var angularVelX = value.getAngularVelocityXWorld(false);
+      var angularVelY = value.getAngularVelocityYWorld(false);
+      var angularVelZ = value.getAngularVelocityZWorld(false);
+      var temperature = value.getTemperature(false);
 
-          BaseStatusSignal[] signals = {
-            yaw, pitch, roll, angularVelX, angularVelY, angularVelZ, temperature
-          };
+      BaseStatusSignal[] signals = {yaw, pitch, roll, angularVelX, angularVelY, angularVelZ, temperature};
 
-          return bb -> {
-            BaseStatusSignal.refreshAll(signals);
-            bb.putDouble(yaw.getValueAsDouble());
-            bb.putDouble(pitch.getValueAsDouble());
-            bb.putDouble(roll.getValueAsDouble());
-            bb.putDouble(angularVelX.getValueAsDouble());
-            bb.putDouble(angularVelY.getValueAsDouble());
-            bb.putDouble(angularVelZ.getValueAsDouble());
-            bb.putDouble(temperature.getValueAsDouble());
-          };
-        };
+      return bb -> {
+        BaseStatusSignal.refreshAll(signals);
+        bb.putDouble(yaw.getValueAsDouble());
+        bb.putDouble(pitch.getValueAsDouble());
+        bb.putDouble(roll.getValueAsDouble());
+        bb.putDouble(angularVelX.getValueAsDouble());
+        bb.putDouble(angularVelY.getValueAsDouble());
+        bb.putDouble(angularVelZ.getValueAsDouble());
+        bb.putDouble(temperature.getValueAsDouble());
+      };
+    };
   }
 }

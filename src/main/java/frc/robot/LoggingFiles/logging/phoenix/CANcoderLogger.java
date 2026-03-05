@@ -62,18 +62,17 @@ public class CANcoderLogger extends ClassSpecificLogger<CANcoder> {
     }
 
     private static final Map<CANcoder, Consumer<ByteBuffer>> registry = new HashMap<>();
-    private static final Function<CANcoder, Consumer<ByteBuffer>> mappingFunction =
-        value -> {
-          var position = value.getPosition(false);
-          var velocity = value.getVelocity(false);
+    private static final Function<CANcoder, Consumer<ByteBuffer>> mappingFunction = value -> {
+      var position = value.getPosition(false);
+      var velocity = value.getVelocity(false);
 
-          BaseStatusSignal[] signals = {position, velocity};
+      BaseStatusSignal[] signals = {position, velocity};
 
-          return bb -> {
-            BaseStatusSignal.refreshAll(signals);
-            bb.putDouble(position.getValueAsDouble());
-            bb.putDouble(velocity.getValueAsDouble());
-          };
-        };
+      return bb -> {
+        BaseStatusSignal.refreshAll(signals);
+        bb.putDouble(position.getValueAsDouble());
+        bb.putDouble(velocity.getValueAsDouble());
+      };
+    };
   }
 }
