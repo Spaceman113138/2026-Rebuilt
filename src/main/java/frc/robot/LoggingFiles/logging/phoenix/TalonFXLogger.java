@@ -24,6 +24,7 @@ public class TalonFXLogger extends ClassSpecificLogger<TalonFX> {
   @Override
   public void update(EpilogueBackend backend, TalonFX talonFX) {
     backend.log("", talonFX, struct);
+    backend.log("ControlRequest", talonFX.getAppliedControl().getName());
   }
 
   private static class TalonFXStruct implements Struct<TalonFX> {
@@ -85,7 +86,7 @@ public class TalonFXLogger extends ClassSpecificLogger<TalonFX> {
             position,
             statorCurrent,
             supplyCurrent,
-            velocity
+            velocity,
           };
 
           return bb -> {

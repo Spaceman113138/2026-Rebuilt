@@ -15,5 +15,7 @@ public class Constants {
     public static final int ovalId = 22;
     public static final int kickerId = 23;
     public static final int climberId = 24;
+    public static final int smallTurretEncoderId = 19;
+    public static final int largeTurretEncoderId = 20;
 
 }

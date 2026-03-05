@@ -10,10 +10,8 @@ import edu.wpi.first.epilogue.Logged.Importance;
 import edu.wpi.first.epilogue.logging.ClassSpecificLogger;
 import edu.wpi.first.epilogue.logging.EpilogueBackend;
 import edu.wpi.first.math.geometry.Pose3d;
-import edu.wpi.first.math.geometry.Transform3d;
 import org.photonvision.EstimatedRobotPose;
 import org.photonvision.targeting.PhotonTrackedTarget;
-import org.photonvision.targeting.proto.PhotonTrackedTargetProto;
 
 /** Add your docs here. */
 @CustomLoggerFor(EstimatedRobotPose.class)

@@ -4,6 +4,10 @@
 
 package frc.robot.subsystems.Launcher;
 
+import static edu.wpi.first.units.Units.Degree;
+
+import java.util.function.Supplier;
+
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.ControlRequest;
@@ -15,6 +19,9 @@ import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.epilogue.Logged;
+import edu.wpi.first.networktables.NetworkTableEntry;
+import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.wpilibj.Alert;
@@ -24,6 +31,7 @@ import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants;
 
 @Logged
@@ -40,12 +48,20 @@ class Hood extends SubsystemBase {
   private StatusSignal<AngularVelocity> velocitySignal = hoodMotor.getVelocity();
   private StatusSignal<Current> statorCurrentSignal = hoodMotor.getStatorCurrent();
 
-  private static final double motorToHoodRatio = 1.0/1.0;
-  private static final double hoodPositionOffset = 0.0;
+  private static final double motorToHoodRatio = (46.0/16.0) * (162.0/20/0); // 2.875 * 8.1 = 23.2875
+  private static final Angle hoodMin = Degree.of(15.0);
+  private static final Angle hoodMax = Degree.of(41.0);
+
+  private NetworkTableEntry hoodEntry = NetworkTableInstance.getDefault().getEntry("/tuning/hoodTarget");
+
 
   Alert zeroedState = new Alert("Hood Failed To Zero", AlertType.kWarning);
 
+  Trigger stalled = new Trigger(this::isStalled);
+
   public Hood() {
+    hoodEntry.getTopic().genericPublish("double");
+    hoodEntry.getTopic().setPersistent(true);
     
     hoodConfig.MotorOutput
       .withInverted(InvertedValue.Clockwise_Positive)
@@ -55,12 +71,17 @@ class Hood extends SubsystemBase {
     hoodConfig.CurrentLimits
       .withStatorCurrentLimitEnable(true)
       .withSupplyCurrentLimitEnable(true)
-      .withStatorCurrentLimit(60)
-      .withSupplyCurrentLimit(30);
+      .withStatorCurrentLimit(40)
+      .withSupplyCurrentLimit(20);
+    hoodConfig.SoftwareLimitSwitch
+      .withForwardSoftLimitEnable(true)
+      .withReverseSoftLimitEnable(true)
+      .withForwardSoftLimitThreshold(hoodMax)
+      .withReverseSoftLimitThreshold(hoodMin);
     hoodConfig.Slot0
       .withKP(0.0)
       .withKD(0.0)
-      .withKS(.0)
+      .withKS(0.0)
       .withKV(0.0)
       .withKG(0.0);
 
@@ -77,21 +98,33 @@ class Hood extends SubsystemBase {
     return velocitySignal.getValueAsDouble() < 1.0 && statorCurrentSignal.getValueAsDouble() > 20.0;
   }
 
+  public boolean atTarget() {
+    return positionRequest.getPositionMeasure().isNear(hoodMotor.getPosition().getValue(), Degree.of(1.0));
+  }
   
-  protected Command zeroHoodCommand() {
+  protected Command zeroHood() {
     return new ParallelRaceGroup(
       startEnd(
-          () -> hoodMotor.setControl(voltageRequest.withOutput(-2.0)), 
+          () -> hoodMotor.setControl(voltageRequest.withOutput(-2.0).withIgnoreSoftwareLimits(true)), 
           () -> {
             hoodMotor.setControl(neutralOut);
-            hoodMotor.setPosition(hoodPositionOffset);
+            hoodMotor.setPosition(hoodMin);
+
           })
-        .until(this::isStalled)
+        .until(stalled.debounce(0.25))
         .withInterruptBehavior(InterruptionBehavior.kCancelIncoming),
       new WaitCommand(5.0)
         .finallyDo((interupted) -> {zeroedState.set(!interupted);})
-      
     );
-  
+  }
+
+  protected Command targetAngle(Supplier<Angle> targetAngle) {
+    return run(
+      () -> hoodMotor.setControl(positionRequest.withPosition(targetAngle.get())));
+  }
+
+  protected Command targetDashboardAngle() {
+    return run(
+      () -> hoodMotor.setControl(positionRequest.withPosition(hoodEntry.getDouble(10))));
   }
 }

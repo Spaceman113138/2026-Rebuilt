@@ -2,7 +2,7 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot.subsystems.Launcher;
+package frc.robot.subsystems;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
@@ -134,7 +134,7 @@ public class Vision extends SubsystemBase {
       camera = new PhotonCamera(carmeraName);
       transform = robotToCameraTransform;
       poseEstimator =
-          new PhotonPoseEstimator(kTagLayout, PoseStrategy.CONSTRAINED_SOLVEPNP, transform);
+          new PhotonPoseEstimator(kTagLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, transform);
 
       if (Robot.isSimulation() && useSim) {
         SimCameraProperties cameraProp = new SimCameraProperties();
@@ -160,12 +160,13 @@ public class Vision extends SubsystemBase {
               : PoseStrategy.CONSTRAINED_SOLVEPNP);
       poseEstimator.addHeadingData(Timer.getFPGATimestamp(), pigeonRotationSupplier.get());
       for (PhotonPipelineResult result : camera.getAllUnreadResults()) {
-        var estimate =
-            poseEstimator.update(
-                result,
-                Optional.empty(),
-                Optional.empty(),
-                RobotState.isDisabled() ? constrainedSolvePNPparam : teleopConstrainedSolveParam);
+        var estimate = poseEstimator.estimateCoprocMultiTagPose(result);
+            // poseEstimator.
+            // poseEstimator.update(result);
+            //     // result,
+            //     // Optional.empty(),
+            //     // Optional.empty(),
+            //     //RobotState.isDisabled() ? constrainedSolvePNPparam : teleopConstrainedSolveParam);
 
         if (estimate.isEmpty() || estimate.get().targetsUsed.isEmpty()) {
           estimatedPose = null;

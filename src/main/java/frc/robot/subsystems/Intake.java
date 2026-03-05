@@ -4,7 +4,6 @@
 
 package frc.robot.subsystems;
 
-import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.NeutralOut;
 import com.ctre.phoenix6.controls.VoltageOut;
@@ -40,7 +39,8 @@ public class Intake extends SubsystemBase {
   private VoltageOut voltageRequest = new VoltageOut(0);
 
   private static final double storePosition = -0.3;
-  private static final double deployPosition = 0.3;
+  private static final double intakePosition = 0.3;
+  private static final double deployPosition = 0.2;
 
 
   /** Creates a new Intake. */
@@ -54,20 +54,11 @@ public class Intake extends SubsystemBase {
       .inverted(false)
       .positionConversionFactor(0.5)
       .velocityConversionFactor(0.5)
-      .zeroCentered(true)
-      .zeroOffset(0.08923568);
+      .zeroCentered(true);
     pivotConfig.closedLoop
       .feedbackSensor(FeedbackSensor.kAbsoluteEncoder)
       .p(25.0)
-      .d(0.2)
-      .feedForward
-        .kA(0.0)
-        .kV(0.0)
-        .kS(0)
-        .kG(0.0);
-    pivotConfig.closedLoop.maxMotion
-      .cruiseVelocity(10)
-      .maxAcceleration(20);
+      .d(0.2);
     pivotMotor.configure(pivotConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
 
@@ -105,30 +96,28 @@ public class Intake extends SubsystemBase {
   public Command deployCommand() {
     return startRun(
       () -> {
+        pivotController.setSetpoint(intakePosition, ControlType.kPosition);
+        rollerMotor.setControl(neutralRequest);
+      }, 
+      () -> {});
+  }
+
+  public Command idleDeployed() {
+    return startRun(
+      () -> {
         pivotController.setSetpoint(deployPosition, ControlType.kPosition);
         rollerMotor.setControl(neutralRequest);
       }, 
       () -> {});
   }
 
-  public Command IntakeCommand() {
+  public Command intakeCommand() {
     return startRun(
       () -> {
-        pivotController.setSetpoint(deployPosition, ControlType.kMAXMotionPositionControl);
+        pivotController.setSetpoint(intakePosition, ControlType.kPosition);
         rollerMotor.setControl(voltageRequest.withOutput(8.0));
       }, 
       () -> {});
   }
 
-  public Command rollerOnly() {
-    return startRun(
-      () -> {
-        rollerMotor.setControl(voltageRequest.withOutput(8.0));
-      }, 
-      () -> {});
-  }
-
-  public Command stopRoller() {
-    return startRun(() -> rollerMotor.setControl(neutralRequest), () -> {});
-  }
 }
