@@ -69,36 +69,29 @@ public class TalonFXLogger extends ClassSpecificLogger<TalonFX> {
     }
 
     private static final Map<TalonFX, Consumer<ByteBuffer>> registry = new HashMap<>();
-    private static final Function<TalonFX, Consumer<ByteBuffer>> mappingFunction =
-        value -> {
-          var closedLoopReference = value.getClosedLoopReference(false);
-          var deviceTemp = value.getDeviceTemp(false);
-          var motorVoltage = value.getMotorVoltage(false);
-          var position = value.getPosition(false);
-          var statorCurrent = value.getStatorCurrent(false);
-          var supplyCurrent = value.getSupplyCurrent(false);
-          var velocity = value.getVelocity(false);
+    private static final Function<TalonFX, Consumer<ByteBuffer>> mappingFunction = value -> {
+      var closedLoopReference = value.getClosedLoopReference(false);
+      var deviceTemp = value.getDeviceTemp(false);
+      var motorVoltage = value.getMotorVoltage(false);
+      var position = value.getPosition(false);
+      var statorCurrent = value.getStatorCurrent(false);
+      var supplyCurrent = value.getSupplyCurrent(false);
+      var velocity = value.getVelocity(false);
 
-          BaseStatusSignal[] signals = {
-            closedLoopReference,
-            deviceTemp,
-            motorVoltage,
-            position,
-            statorCurrent,
-            supplyCurrent,
-            velocity,
-          };
+      BaseStatusSignal[] signals = {
+        closedLoopReference, deviceTemp, motorVoltage, position, statorCurrent, supplyCurrent, velocity,
+      };
 
-          return bb -> {
-            BaseStatusSignal.refreshAll(signals);
-            bb.putDouble(closedLoopReference.getValueAsDouble());
-            bb.putDouble(deviceTemp.getValueAsDouble());
-            bb.putDouble(motorVoltage.getValueAsDouble());
-            bb.putDouble(position.getValueAsDouble());
-            bb.putDouble(statorCurrent.getValueAsDouble());
-            bb.putDouble(supplyCurrent.getValueAsDouble());
-            bb.putDouble(velocity.getValueAsDouble());
-          };
-        };
+      return bb -> {
+        BaseStatusSignal.refreshAll(signals);
+        bb.putDouble(closedLoopReference.getValueAsDouble());
+        bb.putDouble(deviceTemp.getValueAsDouble());
+        bb.putDouble(motorVoltage.getValueAsDouble());
+        bb.putDouble(position.getValueAsDouble());
+        bb.putDouble(statorCurrent.getValueAsDouble());
+        bb.putDouble(supplyCurrent.getValueAsDouble());
+        bb.putDouble(velocity.getValueAsDouble());
+      };
+    };
   }
 }

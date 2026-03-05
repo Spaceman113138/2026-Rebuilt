@@ -9,9 +9,7 @@ public abstract class SparkBaseStruct<T extends SparkBase> implements Struct<T> 
 
   @Override
   public int getSize() {
-    return kSizeDouble * 6
-        + SparkFaultsStruct.struct.getSize() * 2
-        + SparkWarningsStruct.struct.getSize() * 2;
+    return kSizeDouble * 6 + SparkFaultsStruct.struct.getSize() * 2 + SparkWarningsStruct.struct.getSize() * 2;
   }
 
   @Override

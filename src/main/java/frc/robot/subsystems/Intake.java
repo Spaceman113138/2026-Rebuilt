@@ -14,13 +14,12 @@ import com.revrobotics.PersistMode;
 import com.revrobotics.ResetMode;
 import com.revrobotics.spark.FeedbackSensor;
 import com.revrobotics.spark.SparkAbsoluteEncoder;
+import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkFlex;
-import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
-import com.revrobotics.spark.config.SparkFlexConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
-
+import com.revrobotics.spark.config.SparkFlexConfig;
 import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -29,7 +28,7 @@ import frc.robot.generated.TunerConstants;
 
 @Logged
 public class Intake extends SubsystemBase {
-  
+
   private SparkFlex pivotMotor = new SparkFlex(Constants.pivotId, MotorType.kBrushless);
   private SparkAbsoluteEncoder pivotEncoder = pivotMotor.getAbsoluteEncoder();
   private SparkClosedLoopController pivotController = pivotMotor.getClosedLoopController();
@@ -42,40 +41,36 @@ public class Intake extends SubsystemBase {
   private static final double intakePosition = 0.3;
   private static final double deployPosition = 0.2;
 
-
   /** Creates a new Intake. */
   public Intake() {
     SparkFlexConfig pivotConfig = new SparkFlexConfig();
+    pivotConfig.idleMode(IdleMode.kCoast).inverted(true).smartCurrentLimit(20);
     pivotConfig
-      .idleMode(IdleMode.kCoast)
-      .inverted(true)
-      .smartCurrentLimit(20);
-    pivotConfig.absoluteEncoder
-      .inverted(false)
-      .positionConversionFactor(0.5)
-      .velocityConversionFactor(0.5)
-      .zeroCentered(true);
-    pivotConfig.closedLoop
-      .feedbackSensor(FeedbackSensor.kAbsoluteEncoder)
-      .p(25.0)
-      .d(0.2);
+        .absoluteEncoder
+        .inverted(false)
+        .positionConversionFactor(0.5)
+        .velocityConversionFactor(0.5)
+        .zeroCentered(true);
+    pivotConfig
+        .closedLoop
+        .feedbackSensor(FeedbackSensor.kAbsoluteEncoder)
+        .p(25.0)
+        .d(0.2);
     pivotMotor.configure(pivotConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
-
     TalonFXConfiguration rollerConfig = new TalonFXConfiguration();
-    rollerConfig.MotorOutput
-      .withInverted(InvertedValue.CounterClockwise_Positive)
-      .withNeutralMode(NeutralModeValue.Coast);
-    rollerConfig.CurrentLimits
-      .withSupplyCurrentLimitEnable(true)
-      .withStatorCurrentLimitEnable(true)
-      .withSupplyCurrentLimit(30)
-      .withStatorCurrentLimit(60);
-    
+    rollerConfig
+        .MotorOutput
+        .withInverted(InvertedValue.CounterClockwise_Positive)
+        .withNeutralMode(NeutralModeValue.Coast);
+    rollerConfig
+        .CurrentLimits
+        .withSupplyCurrentLimitEnable(true)
+        .withStatorCurrentLimitEnable(true)
+        .withSupplyCurrentLimit(30)
+        .withStatorCurrentLimit(60);
+
     rollerMotor.getConfigurator().apply(rollerConfig);
-    
-
-
   }
 
   @Override
@@ -83,41 +78,39 @@ public class Intake extends SubsystemBase {
     // This method will be called once per scheduler run
   }
 
-
   public Command storeCommand() {
     return startRun(
-      () -> {
-        pivotController.setSetpoint(storePosition, ControlType.kPosition);
-        rollerMotor.setControl(neutralRequest);
-      }, 
-      () -> {});
+        () -> {
+          pivotController.setSetpoint(storePosition, ControlType.kPosition);
+          rollerMotor.setControl(neutralRequest);
+        },
+        () -> {});
   }
 
   public Command deployCommand() {
     return startRun(
-      () -> {
-        pivotController.setSetpoint(intakePosition, ControlType.kPosition);
-        rollerMotor.setControl(neutralRequest);
-      }, 
-      () -> {});
+        () -> {
+          pivotController.setSetpoint(intakePosition, ControlType.kPosition);
+          rollerMotor.setControl(neutralRequest);
+        },
+        () -> {});
   }
 
   public Command idleDeployed() {
     return startRun(
-      () -> {
-        pivotController.setSetpoint(deployPosition, ControlType.kPosition);
-        rollerMotor.setControl(neutralRequest);
-      }, 
-      () -> {});
+        () -> {
+          pivotController.setSetpoint(deployPosition, ControlType.kPosition);
+          rollerMotor.setControl(neutralRequest);
+        },
+        () -> {});
   }
 
   public Command intakeCommand() {
     return startRun(
-      () -> {
-        pivotController.setSetpoint(intakePosition, ControlType.kPosition);
-        rollerMotor.setControl(voltageRequest.withOutput(8.0));
-      }, 
-      () -> {});
+        () -> {
+          pivotController.setSetpoint(intakePosition, ControlType.kPosition);
+          rollerMotor.setControl(voltageRequest.withOutput(8.0));
+        },
+        () -> {});
   }
-
 }

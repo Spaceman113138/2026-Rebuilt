@@ -6,8 +6,6 @@ package frc.robot.subsystems.Launcher;
 
 import static edu.wpi.first.units.Units.Rotations;
 
-import com.ctre.phoenix6.controls.compound.Diff_PositionVoltage_Velocity;
-
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -18,77 +16,78 @@ import frc.robot.Util.ExtrapolatingDoubleTreeMap;
 
 /** Add your docs here. */
 public class ShotCalculator {
-    private static final Translation2d redHubPose = Translation2d.kZero;
-    private static final Translation2d blueHubPose = Translation2d.kZero;
-    private static Translation2d targetPose = Translation2d.kZero;
-    private static final int NumItterations = 4;
+  private static final Translation2d redHubPose = Translation2d.kZero;
+  private static final Translation2d blueHubPose = Translation2d.kZero;
+  private static Translation2d targetPose = Translation2d.kZero;
+  private static final int NumItterations = 4;
 
-    public record ShootingSolution(Angle turretAngle, Angle hoodAngle, double flywheelSpeed) {}
+  public record ShootingSolution(Angle turretAngle, Angle hoodAngle, double flywheelSpeed) {}
 
-    private static ExtrapolatingDoubleTreeMap tofMap = new ExtrapolatingDoubleTreeMap();
+  private static ExtrapolatingDoubleTreeMap tofMap = new ExtrapolatingDoubleTreeMap();
 
-    static {
-        tofMap.put(0.0, 0.0);
+  static {
+    tofMap.put(0.0, 0.0);
+  }
+
+  private static ExtrapolatingDoubleTreeMap hoodMap = new ExtrapolatingDoubleTreeMap();
+
+  static {
+    hoodMap.put(0.0, 0.0);
+  }
+
+  private static ExtrapolatingDoubleTreeMap flywheelMap = new ExtrapolatingDoubleTreeMap();
+
+  static {
+    flywheelMap.put(0.0, 0.0);
+  }
+
+  public static double getFlywheelSpeed(double distance) {
+    return flywheelMap.get(distance);
+  }
+
+  public static double getHoodPosition(double distance) {
+    return hoodMap.get(distance);
+  }
+
+  public static double getTOF(double distance) {
+    return tofMap.get(distance);
+  }
+
+  public static ShootingSolution getStaticHubSolution(Pose2d robotPose) {
+    if (DriverStation.getAlliance().orElseGet(() -> Alliance.Blue) == Alliance.Blue) {
+      targetPose = blueHubPose;
+    } else {
+      targetPose = redHubPose;
     }
 
-    private static ExtrapolatingDoubleTreeMap hoodMap = new ExtrapolatingDoubleTreeMap();
-    static {
-        hoodMap.put(0.0, 0.0);
+    double distance = robotPose.getTranslation().getDistance(targetPose);
+    Rotation2d turretAngle = targetPose.minus(robotPose.getTranslation()).getAngle();
+
+    return new ShootingSolution(
+        turretAngle.getMeasure(), Rotations.of(hoodMap.get(distance)), flywheelMap.get(distance));
+  }
+
+  public static ShootingSolution getSOTMhubSolution(Pose2d robotPose, Translation2d robotVelocity) {
+    if (DriverStation.getAlliance().orElseGet(() -> Alliance.Blue) == Alliance.Blue) {
+      targetPose = blueHubPose;
+    } else {
+      targetPose = redHubPose;
     }
 
-    private static ExtrapolatingDoubleTreeMap flywheelMap = new ExtrapolatingDoubleTreeMap();
-    static {
-        flywheelMap.put(0.0, 0.0);
+    double distance = 0;
+    // Itterate shot projection to hopefully converge on correct shot
+    for (int i = 0; i < NumItterations; i++) {
+      distance = robotPose.getTranslation().getDistance(targetPose);
+      double tof = tofMap.get(distance);
+      targetPose = targetPose.minus(
+          robotVelocity.times(tof)); // Shift goal by predicted change in flight due to robot velocity
     }
 
-    public static double getFlywheelSpeed(double distance) {
-        return flywheelMap.get(distance);
-    }
+    Rotation2d turretAngle = targetPose.minus(robotPose.getTranslation()).getAngle();
 
-    public static double getHoodPosition(double distance) {
-        return hoodMap.get(distance);
-    }
+    // TODO: Check if shot is good (there are situations where it diverges or converges too slowly)
 
-    public static double getTOF(double distance) {
-        return tofMap.get(distance);
-    }
-
-    public static ShootingSolution getStaticHubSolution(Pose2d robotPose) {
-        if (DriverStation.getAlliance().orElseGet(() -> Alliance.Blue) == Alliance.Blue) {
-            targetPose = blueHubPose;
-        } else {
-            targetPose = redHubPose;
-        }
-
-
-        double distance = robotPose.getTranslation().getDistance(targetPose);
-        Rotation2d turretAngle = targetPose.minus(robotPose.getTranslation()).getAngle();
-
-        return new ShootingSolution(turretAngle.getMeasure(), Rotations.of(hoodMap.get(distance)), flywheelMap.get(distance));
-    }
-
-    public static ShootingSolution getSOTMhubSolution(Pose2d robotPose, Translation2d robotVelocity) {
-        if (DriverStation.getAlliance().orElseGet(() -> Alliance.Blue) == Alliance.Blue) {
-            targetPose = blueHubPose;
-        } else {
-            targetPose = redHubPose;
-        }
-
-        double distance = 0;
-        //Itterate shot projection to hopefully converge on correct shot
-        for (int i = 0; i < NumItterations; i++) {
-            distance = robotPose.getTranslation().getDistance(targetPose);
-            double tof = tofMap.get(distance);
-            targetPose = targetPose.minus(robotVelocity.times(tof)); //Shift goal by predicted change in flight due to robot velocity
-        }
-
-        Rotation2d turretAngle = targetPose.minus(robotPose.getTranslation()).getAngle();
-
-        //TODO: Check if shot is good (there are situations where it diverges or converges too slowly)
-
-        return new ShootingSolution(turretAngle.getMeasure(), Rotations.of(hoodMap.get(distance)), flywheelMap.get(distance));
-
-
-    }
-
+    return new ShootingSolution(
+        turretAngle.getMeasure(), Rotations.of(hoodMap.get(distance)), flywheelMap.get(distance));
+  }
 }

@@ -7,8 +7,6 @@ package frc.robot.subsystems.Launcher;
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Rotations;
 
-import java.util.function.Supplier;
-
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.PositionVoltage;
@@ -17,16 +15,14 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
-import com.pathplanner.lib.events.CancelCommandEvent;
-
 import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
-import edu.wpi.first.units.measure.Velocity;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.generated.TunerConstants;
+import java.util.function.Supplier;
 import yams.units.EasyCRT;
 import yams.units.EasyCRTConfig;
 
@@ -47,47 +43,42 @@ class Turret extends SubsystemBase {
 
   private EasyCRT crt;
 
-
   /** Creates a new Turret. */
   public Turret() {
     TalonFXConfiguration config = new TalonFXConfiguration();
-    config.MotorOutput
-      .withInverted(InvertedValue.Clockwise_Positive)
-      .withNeutralMode(NeutralModeValue.Coast);
-    config.CurrentLimits
-      .withStatorCurrentLimitEnable(true)
-      .withSupplyCurrentLimitEnable(true)
-      .withStatorCurrentLimit(120)
-      .withSupplyCurrentLimit(40);
+    config.MotorOutput.withInverted(InvertedValue.Clockwise_Positive).withNeutralMode(NeutralModeValue.Coast);
+    config.CurrentLimits.withStatorCurrentLimitEnable(true)
+        .withSupplyCurrentLimitEnable(true)
+        .withStatorCurrentLimit(120)
+        .withSupplyCurrentLimit(40);
     config.ClosedLoopGeneral.withContinuousWrap(false);
     config.Feedback.withSensorToMechanismRatio(gearRatio);
-    config.SoftwareLimitSwitch
-      .withForwardSoftLimitEnable(true)
-      .withReverseSoftLimitEnable(true)
-      .withForwardSoftLimitThreshold(maxRotation)
-      .withReverseSoftLimitThreshold(minRotation);
-    config.Slot0
-      .withKP(0.0)
-      .withKD(0.0)
-      .withKS(0.0)
-      .withKV(0.0);
+    config.SoftwareLimitSwitch.withForwardSoftLimitEnable(true)
+        .withReverseSoftLimitEnable(true)
+        .withForwardSoftLimitThreshold(maxRotation)
+        .withReverseSoftLimitThreshold(minRotation);
+    config.Slot0.withKP(0.0).withKD(0.0).withKS(0.0).withKV(0.0);
 
     turretMotor.getConfigurator().apply(config);
 
     CANcoderConfiguration encoderConfig = new CANcoderConfiguration();
     encoderConfig.MagnetSensor.withSensorDirection(SensorDirectionValue.Clockwise_Positive);
-    
+
     smallEncoder.getConfigurator().apply(encoderConfig);
     largeEncoder.getConfigurator().apply(encoderConfig);
 
-    EasyCRTConfig crtConfig = new EasyCRTConfig(smallEncoder.getAbsolutePosition(true).asSupplier(), largeEncoder.getAbsolutePosition(true).asSupplier());
-    crtConfig.withEncoderRatios(100.0/smallEncoderTeeth, 100.0/largeEncoderTeeth)
-            .withMechanismRange(minRotation, maxRotation)
-            .withMatchTolerance(Rotations.of(0.06));
+    EasyCRTConfig crtConfig = new EasyCRTConfig(
+        smallEncoder.getAbsolutePosition(true).asSupplier(),
+        largeEncoder.getAbsolutePosition(true).asSupplier());
+    crtConfig
+        .withEncoderRatios(100.0 / smallEncoderTeeth, 100.0 / largeEncoderTeeth)
+        .withMechanismRange(minRotation, maxRotation)
+        .withMatchTolerance(Rotations.of(0.06));
 
     crt = new EasyCRT(crtConfig);
     turretMotor.setPosition(0);
-    //crt.getAngleOptional().ifPresentOrElse((angle) -> turretMotor.setPosition(angle), () -> turretMotor.setPosition(Rotations.of(0.0)));
+    // crt.getAngleOptional().ifPresentOrElse((angle) -> turretMotor.setPosition(angle), () ->
+    // turretMotor.setPosition(Rotations.of(0.0)));
   }
 
   @Override
@@ -100,20 +91,22 @@ class Turret extends SubsystemBase {
   }
 
   protected Command targetAngle(Supplier<Angle> targetAngle) {
-    return run(
-      () -> turretMotor.setControl(positionRequest.withPosition(targetAngle.get()).withVelocity(0)));
+    return run(() -> turretMotor.setControl(
+        positionRequest.withPosition(targetAngle.get()).withVelocity(0)));
   }
 
   protected Command targetAngleWithVelocity(Supplier<Angle> targetAngle, Supplier<AngularVelocity> targetVelocity) {
-    return run(
-      () -> turretMotor.setControl(positionRequest.withPosition(targetAngle.get()).withVelocity(targetVelocity.get())));
+    return run(() -> turretMotor.setControl(
+        positionRequest.withPosition(targetAngle.get()).withVelocity(targetVelocity.get())));
   }
 
   public boolean atTarget() {
-    return positionRequest.getPositionMeasure().isNear(turretMotor.getPosition().getValue(), Degrees.of(1.0));
+    return positionRequest
+        .getPositionMeasure()
+        .isNear(turretMotor.getPosition().getValue(), Degrees.of(1.0));
   }
 
-  //Assume target angle is within a single rotation
+  // Assume target angle is within a single rotation
   // private Angle wrapTargetAngle(Angle target, boolean wrapAggresive) {
   //   if (!wrapAggresive) {
   //     Angle potentialTarget = target.minus(Rotations.of(1));

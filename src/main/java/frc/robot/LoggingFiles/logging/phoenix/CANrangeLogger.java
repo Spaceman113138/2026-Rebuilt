@@ -62,22 +62,21 @@ public class CANrangeLogger extends ClassSpecificLogger<CANrange> {
     }
 
     private static final Map<CANrange, Consumer<ByteBuffer>> registry = new HashMap<>();
-    private static final Function<CANrange, Consumer<ByteBuffer>> mappingFunction =
-        value -> {
-          var ambientSignal = value.getAmbientSignal(false);
-          var distance = value.getDistance(false);
-          var isDetected = value.getIsDetected(false);
-          var signalStrength = value.getSignalStrength(false);
+    private static final Function<CANrange, Consumer<ByteBuffer>> mappingFunction = value -> {
+      var ambientSignal = value.getAmbientSignal(false);
+      var distance = value.getDistance(false);
+      var isDetected = value.getIsDetected(false);
+      var signalStrength = value.getSignalStrength(false);
 
-          BaseStatusSignal[] signals = {ambientSignal, distance, isDetected, signalStrength};
+      BaseStatusSignal[] signals = {ambientSignal, distance, isDetected, signalStrength};
 
-          return bb -> {
-            BaseStatusSignal.refreshAll(signals);
-            bb.putDouble(ambientSignal.getValueAsDouble());
-            bb.putDouble(distance.getValueAsDouble());
-            bb.put((byte) (isDetected.getValue() ? 1 : 0));
-            bb.putDouble(signalStrength.getValueAsDouble());
-          };
-        };
+      return bb -> {
+        BaseStatusSignal.refreshAll(signals);
+        bb.putDouble(ambientSignal.getValueAsDouble());
+        bb.putDouble(distance.getValueAsDouble());
+        bb.put((byte) (isDetected.getValue() ? 1 : 0));
+        bb.putDouble(signalStrength.getValueAsDouble());
+      };
+    };
   }
 }
