@@ -4,11 +4,14 @@
 
 package frc.robot.subsystems.Launcher;
 
+import static edu.wpi.first.units.Units.Rotations;
+
 import com.ctre.phoenix6.controls.compound.Diff_PositionVoltage_Velocity;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import frc.robot.Util.ExtrapolatingDoubleTreeMap;
@@ -20,7 +23,7 @@ public class ShotCalculator {
     private static Translation2d targetPose = Translation2d.kZero;
     private static final int NumItterations = 4;
 
-    public record ShootingSolution(Rotation2d turretAngle, double hoodAngle, double flywheelSpeed) {}
+    public record ShootingSolution(Angle turretAngle, Angle hoodAngle, double flywheelSpeed) {}
 
     private static ExtrapolatingDoubleTreeMap tofMap = new ExtrapolatingDoubleTreeMap();
 
@@ -61,7 +64,7 @@ public class ShotCalculator {
         double distance = robotPose.getTranslation().getDistance(targetPose);
         Rotation2d turretAngle = targetPose.minus(robotPose.getTranslation()).getAngle();
 
-        return new ShootingSolution(turretAngle, hoodMap.get(distance), flywheelMap.get(distance));
+        return new ShootingSolution(turretAngle.getMeasure(), Rotations.of(hoodMap.get(distance)), flywheelMap.get(distance));
     }
 
     public static ShootingSolution getSOTMhubSolution(Pose2d robotPose, Translation2d robotVelocity) {
@@ -83,7 +86,7 @@ public class ShotCalculator {
 
         //TODO: Check if shot is good (there are situations where it diverges or converges too slowly)
 
-        return new ShootingSolution(turretAngle, hoodMap.get(distance), flywheelMap.get(distance));
+        return new ShootingSolution(turretAngle.getMeasure(), Rotations.of(hoodMap.get(distance)), flywheelMap.get(distance));
 
 
     }
