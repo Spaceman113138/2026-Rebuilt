@@ -106,15 +106,16 @@ class Turret extends SubsystemBase {
         .isNear(turretMotor.getPosition().getValue(), Degrees.of(1.0));
   }
 
-  // Assume target angle is within a single rotation
-  // private Angle wrapTargetAngle(Angle target, boolean wrapAggresive) {
-  //   if (!wrapAggresive) {
-  //     Angle potentialTarget = target.minus(Rotations.of(1));
-  //     if (target.lt(Rotations.of(0))) {
-  //       potentialTarget = target.plus(Rotations.of(1));
-  //     }
+  // Assume target angle is within a single rotation [-0.5 , 0.5]
+  private Angle wrapTargetAngle(Angle target, boolean wrapAggresive) {
 
-  //     if ()
-  //   }
-  // }
+    Angle minTargetAngle = minRotation;
+    Angle maxTargetAngle = maxRotation;
+
+    if (wrapAggresive) {
+      minTargetAngle = Degrees.of(-190);
+      maxTargetAngle = Degrees.of(190);
+    }
+    return Degrees.of(0);
+  }
 }

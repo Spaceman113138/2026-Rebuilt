@@ -60,11 +60,11 @@ public class ShotCalculator {
       targetPose = redHubPose;
     }
 
-    double distance = robotPose.getTranslation().getDistance(targetPose);
-    Rotation2d turretAngle = targetPose.minus(robotPose.getTranslation()).getAngle();
+    Translation2d difference = targetPose.minus(robotPose.getTranslation());
+    double distance = difference.getNorm();
+    Angle turretAngle = difference.getAngle().getMeasure();
 
-    return new ShootingSolution(
-        turretAngle.getMeasure(), Rotations.of(hoodMap.get(distance)), flywheelMap.get(distance));
+    return new ShootingSolution(turretAngle, Rotations.of(hoodMap.get(distance)), flywheelMap.get(distance));
   }
 
   public static ShootingSolution getSOTMhubSolution(Pose2d robotPose, Translation2d robotVelocity) {
