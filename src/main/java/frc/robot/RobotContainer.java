@@ -86,7 +86,10 @@ public class RobotContainer {
     //     point.withModuleDirection(new Rotation2d(-joystick.getLeftY(), -joystick.getLeftX()))
     // ));
 
-    joystick.rightTrigger().whileTrue(indexer.runIndexer()).whileFalse(indexer.idleCommand());
+    joystick.rightTrigger()
+        .whileTrue(launcher.targetDashboard()
+            .alongWith(Commands.waitUntil(launcher.launcherReady).andThen(indexer.runIndexer())))
+        .whileFalse(indexer.idleCommand());
     joystick.leftTrigger().whileTrue(intake.intakeCommand()).onFalse(intake.idleDeployed());
 
     // Run SysId routines when holding back/start and X/Y.

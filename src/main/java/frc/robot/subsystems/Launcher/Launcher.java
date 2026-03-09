@@ -4,6 +4,7 @@
 
 package frc.robot.subsystems.Launcher;
 
+import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.Rotation;
 
@@ -15,6 +16,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.Launcher.ShotCalculator.ShootingSolution;
 
@@ -26,9 +28,11 @@ public class Launcher extends SubsystemBase {
   private final Turret turret = new Turret();
   private CommandSwerveDrivetrain drivetrain;
 
-  private ShootingSolution bestShootingSolution;
+  private ShootingSolution bestShootingSolution = new ShootingSolution(Degrees.of(0), Degrees.of(0), 0);
 
-  private static Translation2d turretOffset = new Translation2d(Inches.of(-6), Inches.of(-12));
+  private static Translation2d turretOffset = new Translation2d(Inches.of(-2.684942), Inches.of(-3.674131));
+
+  public Trigger launcherReady = new Trigger(() -> flywheel.atTarget() && hood.atTarget() && turret.atTarget());
 
   /** Creates a new Launcher. */
   public Launcher(CommandSwerveDrivetrain Drivetrain) {
@@ -43,7 +47,6 @@ public class Launcher extends SubsystemBase {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
-    getTurretPose();
   }
 
   private Command expose(Command internal) {
@@ -61,10 +64,7 @@ public class Launcher extends SubsystemBase {
 
   public Command targetHub() {
     return expose(run(() -> {
-              var curentPose = drivetrain.getEstimatedPose();
-              var turretPose = curentPose.transformBy(
-                  new Transform2d(turretOffset.rotateBy(curentPose.getRotation()), Rotation2d.kZero));
-              bestShootingSolution = ShotCalculator.getStaticHubSolution(turretPose);
+              bestShootingSolution = ShotCalculator.getStaticHubSolution(getTurretPose());
             })
             .alongWith(targetBest()))
         .withName("TargetHub");
@@ -76,9 +76,13 @@ public class Launcher extends SubsystemBase {
         .alongWith(turret.targetAngle(() -> bestShootingSolution.turretAngle()));
   }
 
-  private Pose2d getTurretPose() {
+  public Command targetDashboard() {
+    return expose(flywheel.runAtDashboardVelocity().alongWith(hood.targetDashboardAngle()));
+  }
+
+  public Pose2d getTurretPose() {
     var curentPose = drivetrain.getEstimatedPose();
     return curentPose.transformBy(
-        new Transform2d(turretOffset.rotateBy(curentPose.getRotation()), Rotation2d.kZero));
+        new Transform2d(turretOffset.rotateBy(curentPose.getRotation()), new Rotation2d(turret.getRotation())));
   }
 }
