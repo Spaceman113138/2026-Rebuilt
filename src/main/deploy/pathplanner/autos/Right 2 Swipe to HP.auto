@@ -7,49 +7,50 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Left Center Start to Center"
+            "pathName": "Bottom Trench to Neutral Intake"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "Left Collection Cycle A"
+            "pathName": "Bottom Neutral Intake to Trench"
+          }
+        },
+        {
+          "type": "parallel",
+          "data": {
+            "commands": [
+              {
+                "type": "wait",
+                "data": {
+                  "waitTime": 4.0
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "runShooter"
+                }
+              }
+            ]
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "Left Collection A to Trench"
+            "pathName": "Trench to 2nd Swipe"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "Left Trench to Depot"
+            "pathName": "2nd Swipe to HP"
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "startShooter"
-          }
-        },
-        {
-          "type": "wait",
-          "data": {
-            "waitTime": 5.0
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "Depot to Left Climb"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "lowerClimb"
+            "name": "runShooter"
           }
         }
       ]

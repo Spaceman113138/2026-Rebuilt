@@ -4,37 +4,42 @@
     {
       "anchor": {
         "x": 4.45,
-        "y": 7.6
+        "y": 0.84
       },
       "prevControl": null,
       "nextControl": {
-        "x": 0.5500000000000003,
-        "y": 7.599999999999999
+        "x": 6.794992867332382,
+        "y": 0.7291726105563499
       },
       "isLocked": false,
-      "linkedName": "Top Trench After Start Set-point"
+      "linkedName": "Bottom Trench Start"
     },
     {
       "anchor": {
-        "x": 1.0,
-        "y": 5.96
+        "x": 8.6,
+        "y": 3.25
       },
       "prevControl": {
-        "x": 2.25,
-        "y": 5.96
+        "x": 8.671098430813123,
+        "y": 0.8175320970042796
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "Depot"
+      "linkedName": "Bottom Collection"
     }
   ],
-  "rotationTargets": [],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 1,
+      "rotationDegrees": 0.0
+    }
+  ],
   "constraintZones": [],
   "pointTowardsZones": [],
   "eventMarkers": [
     {
       "name": "runIntake",
-      "waypointRelativePos": 0.8009925558312551,
+      "waypointRelativePos": 0.29979743416610133,
       "endWaypointRelativePos": null,
       "command": null
     }
@@ -49,13 +54,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 180.0
+    "rotation": 90.0
   },
   "reversed": false,
-  "folder": null,
+  "folder": "Right Double Swipe to HP Auto Paths",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": -90.0
+    "rotation": 90.0
   },
   "useDefaultConstraints": true
 }

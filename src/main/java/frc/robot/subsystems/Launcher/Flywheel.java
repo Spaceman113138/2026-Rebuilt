@@ -6,7 +6,6 @@ package frc.robot.subsystems.Launcher;
 
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 
-import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.NeutralOut;
@@ -22,13 +21,14 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.robot.generated.TunerConstants;
 import java.util.function.DoubleSupplier;
 
 @Logged
 class Flywheel extends SubsystemBase {
 
-  private TalonFX leftFlywheelMotor = new TalonFX(Constants.leftFlyweelId, CANBus.roboRIO());
-  private TalonFX rightFlywheelMotor = new TalonFX(Constants.rightFlywheelId, CANBus.roboRIO());
+  private TalonFX leftFlywheelMotor = new TalonFX(Constants.leftFlyweelId, TunerConstants.kCANBus);
+  private TalonFX rightFlywheelMotor = new TalonFX(Constants.rightFlywheelId, TunerConstants.kCANBus);
 
   private static final double motorToFlywheelRatio = 15.0 / 18.0;
 
@@ -39,6 +39,7 @@ class Flywheel extends SubsystemBase {
 
   /** Creates a new Flywheel. */
   public Flywheel() {
+
     speedEntry.getTopic().genericPublish("double");
     speedEntry.getTopic().setPersistent(true);
 
@@ -46,7 +47,8 @@ class Flywheel extends SubsystemBase {
     rightFlywheelMotor.getConfigurator().apply(motorConfig());
     rightFlywheelMotor.setControl(new Follower(Constants.leftFlyweelId, MotorAlignmentValue.Opposed));
 
-    SmartDashboard.putData("/tuning/flywheelRun", runAtDashboardVelocity());
+    SmartDashboard.putData("tuning/flywheelRun", runAtDashboardVelocity());
+    setDefaultCommand(idleCommand());
   }
 
   private TalonFXConfiguration motorConfig() {
@@ -58,11 +60,14 @@ class Flywheel extends SubsystemBase {
         .withSupplyCurrentLimitEnable(true)
         .withSupplyCurrentLimit(40);
 
-    motorConfig.MotorOutput.withNeutralMode(NeutralModeValue.Coast).withInverted(InvertedValue.Clockwise_Positive);
+    motorConfig
+        .MotorOutput
+        .withNeutralMode(NeutralModeValue.Coast)
+        .withInverted(InvertedValue.CounterClockwise_Positive);
 
     motorConfig.Feedback.withSensorToMechanismRatio(motorToFlywheelRatio);
 
-    motorConfig.Slot0.withKP(0.0).withKD(0.0).withKS(0.0).withKV(0.051);
+    motorConfig.Slot0.withKP(0.0).withKD(0.0).withKS(0.2).withKV(1.7);
 
     return motorConfig;
   }
@@ -88,6 +93,7 @@ class Flywheel extends SubsystemBase {
   }
 
   protected Command runAtDashboardVelocity() {
-    return run(() -> leftFlywheelMotor.setControl(velocityControlRequest.withVelocity(speedEntry.getDouble(0))));
+    return run(() ->
+        leftFlywheelMotor.setControl(velocityControlRequest.withVelocity(speedEntry.getDouble(0) / 100.0)));
   }
 }

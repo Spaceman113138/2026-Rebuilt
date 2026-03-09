@@ -1,0 +1,70 @@
+{
+  "version": "2025.0",
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 4.0,
+        "y": 7.6
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 4.662967189728957,
+        "y": 7.509029957203994
+      },
+      "isLocked": false,
+      "linkedName": "Top Trench After Start Set-point"
+    },
+    {
+      "anchor": {
+        "x": 5.824593437945791,
+        "y": 7.315
+      },
+      "prevControl": {
+        "x": 5.811654778887303,
+        "y": 7.819607703281028
+      },
+      "nextControl": {
+        "x": 5.8418331990268975,
+        "y": 6.64264931783683
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 5.824593437945791,
+        "y": 4.998930099857347
+      },
+      "prevControl": {
+        "x": 5.850470756062768,
+        "y": 6.331611982881598
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": "Top 2nd Swipe Collection"
+    }
+  ],
+  "rotationTargets": [],
+  "constraintZones": [],
+  "pointTowardsZones": [],
+  "eventMarkers": [],
+  "globalConstraints": {
+    "maxVelocity": 3.0,
+    "maxAcceleration": 3.0,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0,
+    "nominalVoltage": 12.0,
+    "unlimited": false
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": -90.0
+  },
+  "reversed": false,
+  "folder": "Left Double Swipe to Depot Auto Paths",
+  "idealStartingState": {
+    "velocity": 0,
+    "rotation": -90.0
+  },
+  "useDefaultConstraints": true
+}

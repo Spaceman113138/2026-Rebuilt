@@ -3,29 +3,45 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 7.75,
-        "y": 6.835
+        "x": 4.000242510699001,
+        "y": 0.475
       },
       "prevControl": null,
       "nextControl": {
-        "x": 7.75,
-        "y": 6.0929647848160045
+        "x": 5.000242510699001,
+        "y": 0.47499999999999964
       },
       "isLocked": false,
-      "linkedName": "Top Fuel-Collection Set-Point"
+      "linkedName": "Bottom Trench After Start"
     },
     {
       "anchor": {
-        "x": 7.75,
-        "y": 5.5
+        "x": 5.721084165477888,
+        "y": 0.5868473609129818
       },
       "prevControl": {
-        "x": 7.75,
-        "y": 6.082334349002814
+        "x": 5.648293761532213,
+        "y": 0.34767889080576786
+      },
+      "nextControl": {
+        "x": 5.811654778887304,
+        "y": 0.8844365192582018
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 5.775,
+        "y": 3.4
+      },
+      "prevControl": {
+        "x": 5.775,
+        "y": 2.5589871611982877
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "Collection Upper Middle Point Set-Point"
+      "linkedName": "Botton 2nd Swipe Collection"
     }
   ],
   "rotationTargets": [],
@@ -42,13 +58,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -90.0
+    "rotation": 90.0
   },
   "reversed": false,
-  "folder": null,
+  "folder": "Right Double Swipe to HP Auto Paths",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": -90.0
+    "rotation": 90.0
   },
   "useDefaultConstraints": true
 }

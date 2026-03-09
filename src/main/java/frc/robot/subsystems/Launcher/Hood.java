@@ -5,6 +5,7 @@
 package frc.robot.subsystems.Launcher;
 
 import static edu.wpi.first.units.Units.Degree;
+import static edu.wpi.first.units.Units.Degrees;
 
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
@@ -22,6 +23,7 @@ import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
 import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
@@ -29,12 +31,13 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants;
+import frc.robot.generated.TunerConstants;
 import java.util.function.Supplier;
 
 @Logged
 class Hood extends SubsystemBase {
   /** Creates a new Hood. */
-  private TalonFX hoodMotor = new TalonFX(Constants.hoodId);
+  private TalonFX hoodMotor = new TalonFX(Constants.hoodId, TunerConstants.kCANBus);
 
   private TalonFXConfiguration hoodConfig = new TalonFXConfiguration();
 
@@ -45,9 +48,9 @@ class Hood extends SubsystemBase {
   private StatusSignal<AngularVelocity> velocitySignal = hoodMotor.getVelocity();
   private StatusSignal<Current> statorCurrentSignal = hoodMotor.getStatorCurrent();
 
-  private static final double motorToHoodRatio = (46.0 / 16.0) * (162.0 / 20 / 0); // 2.875 * 8.1 = 23.2875
+  private static final double motorToHoodRatio = (46.0 / 16.0) * (162.0 / 20.0); // 2.875 * 8.1 = 23.2875
   private static final Angle hoodMin = Degree.of(15.0);
-  private static final Angle hoodMax = Degree.of(41.0);
+  private static final Angle hoodMax = Degree.of(40.0);
 
   private NetworkTableEntry hoodEntry = NetworkTableInstance.getDefault().getEntry("/tuning/hoodTarget");
 
@@ -66,16 +69,19 @@ class Hood extends SubsystemBase {
         .withStatorCurrentLimitEnable(true)
         .withSupplyCurrentLimitEnable(true)
         .withStatorCurrentLimit(40)
-        .withSupplyCurrentLimit(20);
+        .withSupplyCurrentLimit(10);
     hoodConfig
         .SoftwareLimitSwitch
         .withForwardSoftLimitEnable(true)
         .withReverseSoftLimitEnable(true)
         .withForwardSoftLimitThreshold(hoodMax)
         .withReverseSoftLimitThreshold(hoodMin);
-    hoodConfig.Slot0.withKP(0.0).withKD(0.0).withKS(0.0).withKV(0.0).withKG(0.0);
+    hoodConfig.Slot0.withKP(100.0).withKD(0.0).withKS(0.38).withKV(0.0).withKG(0.0);
 
     hoodMotor.getConfigurator().apply(hoodConfig);
+    hoodMotor.setPosition(Degrees.of(15));
+    SmartDashboard.putData("HoodCommand", targetDashboardAngle());
+    SmartDashboard.putData("ZeroHoodCommand", zeroHood());
   }
 
   @Override
@@ -97,7 +103,7 @@ class Hood extends SubsystemBase {
     return new ParallelRaceGroup(
         startEnd(
                 () -> hoodMotor.setControl(
-                    voltageRequest.withOutput(-2.0).withIgnoreSoftwareLimits(true)),
+                    voltageRequest.withOutput(-1.0).withIgnoreSoftwareLimits(true)),
                 () -> {
                   hoodMotor.setControl(neutralOut);
                   hoodMotor.setPosition(hoodMin);
@@ -114,6 +120,6 @@ class Hood extends SubsystemBase {
   }
 
   protected Command targetDashboardAngle() {
-    return run(() -> hoodMotor.setControl(positionRequest.withPosition(hoodEntry.getDouble(10))));
+    return run(() -> hoodMotor.setControl(positionRequest.withPosition(Degrees.of(hoodEntry.getDouble(15)))));
   }
 }

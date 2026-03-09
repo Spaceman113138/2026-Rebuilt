@@ -3,29 +3,29 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 7.75,
-        "y": 5.5
+        "x": 4.42,
+        "y": 7.250256776034237
       },
       "prevControl": null,
       "nextControl": {
-        "x": 7.709494382022472,
-        "y": 7.143258426966293
+        "x": 7.4678031383737515,
+        "y": 7.4572753209700435
       },
       "isLocked": false,
-      "linkedName": "Collection Upper Middle Point Set-Point"
+      "linkedName": "Top Trench Set-Point"
     },
     {
       "anchor": {
-        "x": 4.45,
-        "y": 7.6
+        "x": 8.606405135520683,
+        "y": 5.0
       },
       "prevControl": {
-        "x": 6.117250684046676,
-        "y": 7.6
+        "x": 8.360570613409415,
+        "y": 7.263195435092724
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "Top Trench After Start Set-point"
+      "linkedName": "Top Collection"
     }
   ],
   "rotationTargets": [],
@@ -33,8 +33,8 @@
   "pointTowardsZones": [],
   "eventMarkers": [
     {
-      "name": "stopIntake",
-      "waypointRelativePos": 0.01,
+      "name": "runIntake",
+      "waypointRelativePos": 0.24,
       "endWaypointRelativePos": null,
       "command": null
     }
@@ -52,7 +52,7 @@
     "rotation": -90.0
   },
   "reversed": false,
-  "folder": null,
+  "folder": "Left Double Swipe to Depot Auto Paths",
   "idealStartingState": {
     "velocity": 0,
     "rotation": -90.0
