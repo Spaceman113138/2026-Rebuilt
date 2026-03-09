@@ -2,7 +2,10 @@
   "robotWidth": 0.937,
   "robotLength": 0.8382,
   "holonomicMode": true,
-  "pathFolders": [],
+  "pathFolders": [
+    "Left Double Swipe to Depot Auto Paths",
+    "Right Double Swipe to HP Auto Paths"
+  ],
   "autoFolders": [],
   "defaultMaxVel": 3.0,
   "defaultMaxAccel": 3.0,

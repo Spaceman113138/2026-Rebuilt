@@ -3,48 +3,35 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 1.0,
-        "y": 5.96
+        "x": 8.6,
+        "y": 3.25
       },
       "prevControl": null,
       "nextControl": {
-        "x": 1.0,
-        "y": 4.21
+        "x": 7.441925820256776,
+        "y": 0.45746077032810284
       },
       "isLocked": false,
-      "linkedName": "Depot"
+      "linkedName": "Bottom Collection"
     },
     {
       "anchor": {
-        "x": 0.73,
-        "y": 4.315
+        "x": 4.000242510699001,
+        "y": 0.475
       },
       "prevControl": {
-        "x": -0.020000000000000018,
-        "y": 4.315
+        "x": 5.294108416547789,
+        "y": 0.37982881597717666
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "Top Climb"
+      "linkedName": "Bottom Trench After Start"
     }
   ],
   "rotationTargets": [],
   "constraintZones": [],
   "pointTowardsZones": [],
-  "eventMarkers": [
-    {
-      "name": "pullIntake",
-      "waypointRelativePos": 0.1,
-      "endWaypointRelativePos": null,
-      "command": null
-    },
-    {
-      "name": "raiseClimb",
-      "waypointRelativePos": 0.501240694789095,
-      "endWaypointRelativePos": null,
-      "command": null
-    }
-  ],
+  "eventMarkers": [],
   "globalConstraints": {
     "maxVelocity": 3.0,
     "maxAcceleration": 3.0,
@@ -55,13 +42,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 180.0
+    "rotation": 90.0
   },
   "reversed": false,
-  "folder": null,
+  "folder": "Right Double Swipe to HP Auto Paths",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 180.0
+    "rotation": 90.0
   },
   "useDefaultConstraints": true
 }
