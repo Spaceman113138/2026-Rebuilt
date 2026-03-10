@@ -10,7 +10,6 @@ import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
@@ -33,7 +32,7 @@ import org.photonvision.targeting.PhotonPipelineResult;
 public class Vision extends SubsystemBase {
   // Sim stuff
   VisionSystemSim visionSim = new VisionSystemSim("main");
-  Supplier<Pose3d> poseSupplier;
+  Supplier<Pose2d> poseSupplier;
   Supplier<Rotation3d> pigeonRotationSupplier;
   private boolean useSim = true;
 
@@ -43,20 +42,21 @@ public class Vision extends SubsystemBase {
 
   private Camera leftCamera = new Camera(
       "LowerLeft",
-      new Transform3d(-0.345, 0.285, 0.495, new Rotation3d(0.0, Math.toRadians(15), Math.toRadians(90.0))),
+      new Transform3d(
+          -0.240829, 0.344977, 0.490599, new Rotation3d(0.0, Math.toRadians(15), Math.toRadians(90.0))),
       visionSim,
       useSim);
 
   private Camera backCamera = new Camera(
       "BackCam",
-      new Transform3d(-0.295, 0.286, 0.495, new Rotation3d(0.0, Math.toRadians(15), Math.toRadians(180.0))),
+      new Transform3d(-0.295707, 0.288925, 0.485, new Rotation3d(0.0, Math.toRadians(15), Math.toRadians(180.0))),
       visionSim,
       useSim);
   private Camera[] cameras = {leftCamera, backCamera};
 
   /** Creates a new Vision. */
   public Vision(
-      EstimateConsumer poseConsumer, Supplier<Pose3d> simPoseSupplier, Supplier<Rotation3d> headingSupplier) {
+      EstimateConsumer poseConsumer, Supplier<Pose2d> simPoseSupplier, Supplier<Rotation3d> headingSupplier) {
     estimateConsumer = poseConsumer;
     poseSupplier = simPoseSupplier;
     pigeonRotationSupplier = headingSupplier;
