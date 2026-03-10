@@ -17,15 +17,12 @@ import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.RobotState;
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
-import java.util.Optional;
 import java.util.function.Supplier;
 import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
-import org.photonvision.PhotonPoseEstimator.ConstrainedSolvepnpParams;
 import org.photonvision.PhotonPoseEstimator.PoseStrategy;
 import org.photonvision.simulation.PhotonCameraSim;
 import org.photonvision.simulation.SimCameraProperties;
@@ -44,27 +41,18 @@ public class Vision extends SubsystemBase {
 
   public static final AprilTagFieldLayout kTagLayout = AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField);
 
-  private Camera rightCamera = new Camera(
-      "Right",
-      new Transform3d(0.22, -0.285, 0.494, new Rotation3d(0.0, 0.0, Math.toRadians(31))),
-      visionSim,
-      useSim);
   private Camera leftCamera = new Camera(
-      "Left",
-      new Transform3d(0.22, 0.285, 0.494, new Rotation3d(0.0, 0.0, Math.toRadians(-31))),
-      visionSim,
-      useSim);
-  private Camera lowerRightCamera = new Camera(
-      "Back",
-      new Transform3d(0.22, 0.285, (0.494 - 0.245) + 0.0381, new Rotation3d(0.0, 0.0, Math.toRadians(-31))),
-      visionSim,
-      useSim);
-  private Camera lowerLeftCamera = new Camera(
       "LowerLeft",
-      new Transform3d(0.22, -0.285, (0.494 - 0.245) + 0.0381, new Rotation3d(0.0, 0.0, Math.toRadians(31))),
+      new Transform3d(-0.345, 0.285, 0.495, new Rotation3d(0.0, Math.toRadians(15), Math.toRadians(90.0))),
       visionSim,
       useSim);
-  private Camera[] cameras = {rightCamera, leftCamera, lowerRightCamera, lowerLeftCamera};
+
+  private Camera backCamera = new Camera(
+      "BackCam",
+      new Transform3d(-0.295, 0.286, 0.495, new Rotation3d(0.0, Math.toRadians(15), Math.toRadians(180.0))),
+      visionSim,
+      useSim);
+  private Camera[] cameras = {leftCamera, backCamera};
 
   /** Creates a new Vision. */
   public Vision(
@@ -110,10 +98,6 @@ public class Vision extends SubsystemBase {
 
     private static final double constrainedPnpXyStd = 0.4;
     private static final double constrainedPnpAngStd = 0.14;
-    private static final Optional<ConstrainedSolvepnpParams> constrainedSolvePNPparam =
-        Optional.of(new ConstrainedSolvepnpParams(true, 0.0));
-    private static final Optional<ConstrainedSolvepnpParams> teleopConstrainedSolveParam =
-        Optional.of(new ConstrainedSolvepnpParams(false, 0.1));
     public static final AprilTagFieldLayout kTagLayout =
         AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField);
 
@@ -141,17 +125,8 @@ public class Vision extends SubsystemBase {
     }
 
     public void update(EstimateConsumer visionConsumer) {
-      poseEstimator.setPrimaryStrategy(
-          RobotState.isDisabled() ? PoseStrategy.CONSTRAINED_SOLVEPNP : PoseStrategy.CONSTRAINED_SOLVEPNP);
-      poseEstimator.addHeadingData(Timer.getFPGATimestamp(), pigeonRotationSupplier.get());
       for (PhotonPipelineResult result : camera.getAllUnreadResults()) {
         var estimate = poseEstimator.estimateCoprocMultiTagPose(result);
-        // poseEstimator.
-        // poseEstimator.update(result);
-        //     // result,
-        //     // Optional.empty(),
-        //     // Optional.empty(),
-        //     //RobotState.isDisabled() ? constrainedSolvePNPparam : teleopConstrainedSolveParam);
 
         if (estimate.isEmpty() || estimate.get().targetsUsed.isEmpty()) {
           estimatedPose = null;

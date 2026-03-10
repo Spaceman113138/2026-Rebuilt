@@ -25,6 +25,7 @@ import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.Indexer;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Launcher.Launcher;
+import frc.robot.subsystems.Vision;
 
 @Logged
 public class RobotContainer {
@@ -35,7 +36,7 @@ public class RobotContainer {
 
   /* Setting up bindings for necessary control of the swerve drive platform */
   private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
-      .withDeadband(MaxSpeed * 0.1)
+      .withDeadband(MaxSpeed * 0.001)
       .withRotationalDeadband(MaxAngularRate * 0.1) // Add a 10% deadband
       .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive motors
   private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
@@ -49,6 +50,7 @@ public class RobotContainer {
   public final Launcher launcher = new Launcher(drivetrain);
   public final Intake intake = new Intake();
   public final Indexer indexer = new Indexer();
+  public final Vision vision = new Vision(drivetrain::addVisionMeasurement, null, drivetrain::getRotation3d);
 
   private final SendableChooser<Command> autoChooser;
 
