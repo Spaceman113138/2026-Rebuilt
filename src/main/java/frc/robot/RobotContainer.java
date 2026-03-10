@@ -50,7 +50,8 @@ public class RobotContainer {
   public final Launcher launcher = new Launcher(drivetrain);
   public final Intake intake = new Intake();
   public final Indexer indexer = new Indexer();
-  public final Vision vision = new Vision(drivetrain::addVisionMeasurement, null, drivetrain::getRotation3d);
+  public final Vision vision =
+      new Vision(drivetrain::addVisionMeasurement, drivetrain::getEstimatedPose, drivetrain::getRotation3d);
 
   private final SendableChooser<Command> autoChooser;
 

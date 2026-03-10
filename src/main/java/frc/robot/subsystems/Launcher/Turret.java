@@ -38,8 +38,10 @@ class Turret extends SubsystemBase {
 
   private PositionVoltage positionRequest = new PositionVoltage(0).withSlot(0);
 
-  private static final Angle minRotation = Rotations.of(-0.5);
-  private static final Angle maxRotation = Rotations.of(0.5);
+  private static final Angle minRotation = Rotations.of(-0.75);
+  private static final Angle maxRotation = Rotations.of(0.75);
+  private static final Angle minAggresiveRotation = Rotations.of(-0.55);
+  private static final Angle maxAggresiveRotation = Rotations.of(0.55);
   private static final double gearRatio = 3.0 * (100.0 / 10.0);
   private static final double largeEncoderTeeth = 14.0;
   private static final double smallEncoderTeeth = 13.0;
@@ -116,31 +118,40 @@ class Turret extends SubsystemBase {
   }
 
   // Assume target angle is within a single rotation [-0.5 , 0.5]
-  private Angle wrapTargetAngle(Angle target, boolean wrapAggresive) {
+  private Angle wrapTargetAngle(Angle targetAngle, Angle currentAngle, Angle minAngle, Angle maxAngle) {
+    double t = targetAngle.in(Rotations);
+    double cur = currentAngle.in(Rotations);
+    double min = minAngle.in(Rotations);
+    double max = maxAngle.in(Rotations);
 
-    Angle minTargetAngle = minRotation;
-    Angle maxTargetAngle = maxRotation;
+    double upper = t + 1.0;
+    double middle = t;
+    double lower = upper - 1.0;
 
-    if (wrapAggresive) {
-      minTargetAngle = Degrees.of(-190);
-      maxTargetAngle = Degrees.of(190);
+    boolean upperValid = upper >= min && upper <= max;
+    boolean middleValid = middle >= min && middle <= max;
+    boolean lowerValid = lower >= min && lower <= max;
+
+    double result = 0;
+    if (upperValid && middleValid && lowerValid) {
+      double upperOrMiddle = Math.abs(upper - cur) < Math.abs(middle - cur) ? upper : middle;
+      result = Math.abs(upperOrMiddle - cur) < Math.abs(lower - cur) ? upperOrMiddle : lower;
+    } else if (upperValid && middleValid) {
+      result = Math.abs(upper - cur) < Math.abs(middle - cur) ? upper : middle;
+    } else if (middleValid && lowerValid) {
+      result = Math.abs(middle - cur) < Math.abs(lower - cur) ? middle : lower;
+    } else if (upperValid) {
+      result = upper;
+    } else if (middleValid) {
+      result = middle;
+    } else {
+      result = lower; // lowerValid, should always be true given valid inputs
     }
-    return Degrees.of(0);
+
+    return Rotations.of(result);
   }
 
   private Command targetDashboardAngle() {
     return targetAngle(() -> Degrees.of(turretEntry.getDouble(0)));
   }
-
-  // Assume target angle is within a single rotation
-  // private Angle wrapTargetAngle(Angle target, boolean wrapAggresive) {
-  //   if (!wrapAggresive) {
-  //     Angle potentialTarget = target.minus(Rotations.of(1));
-  //     if (target.lt(Rotations.of(0))) {
-  //       potentialTarget = target.plus(Rotations.of(1));
-  //     }
-
-  //     if ()
-  //   }
-  // }
 }
