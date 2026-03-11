@@ -22,7 +22,6 @@ import java.util.function.Supplier;
 import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
-import org.photonvision.PhotonPoseEstimator.PoseStrategy;
 import org.photonvision.simulation.PhotonCameraSim;
 import org.photonvision.simulation.SimCameraProperties;
 import org.photonvision.simulation.VisionSystemSim;
@@ -43,13 +42,17 @@ public class Vision extends SubsystemBase {
   private Camera leftCamera = new Camera(
       "LowerLeft",
       new Transform3d(
-          -0.240829, 0.344977, 0.490599, new Rotation3d(0.0, Math.toRadians(15), Math.toRadians(90.0))),
+          -0.240829, 0.344977 + .5, 0.490599, new Rotation3d(0.0, Math.toRadians(15), Math.toRadians(90.0))),
       visionSim,
       useSim);
 
   private Camera backCamera = new Camera(
       "BackCam",
-      new Transform3d(-0.295707, 0.288925, 0.485, new Rotation3d(0.0, Math.toRadians(15), Math.toRadians(180.0))),
+      new Transform3d(
+          -0.295707 - .131,
+          0.288925 + 0.147,
+          0.485,
+          new Rotation3d(0.0, Math.toRadians(15), Math.toRadians(180.0))),
       visionSim,
       useSim);
   private Camera[] cameras = {leftCamera, backCamera};
@@ -105,7 +108,7 @@ public class Vision extends SubsystemBase {
         String carmeraName, Transform3d robotToCameraTransform, VisionSystemSim visionSim, boolean useSim) {
       camera = new PhotonCamera(carmeraName);
       transform = robotToCameraTransform;
-      poseEstimator = new PhotonPoseEstimator(kTagLayout, PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, transform);
+      poseEstimator = new PhotonPoseEstimator(kTagLayout, transform);
 
       if (Robot.isSimulation() && useSim) {
         SimCameraProperties cameraProp = new SimCameraProperties();
@@ -127,6 +130,9 @@ public class Vision extends SubsystemBase {
     public void update(EstimateConsumer visionConsumer) {
       for (PhotonPipelineResult result : camera.getAllUnreadResults()) {
         var estimate = poseEstimator.estimateCoprocMultiTagPose(result);
+        if (estimate.isEmpty()) {
+          estimate = poseEstimator.estimateLowestAmbiguityPose(result);
+        }
 
         if (estimate.isEmpty() || estimate.get().targetsUsed.isEmpty()) {
           estimatedPose = null;
