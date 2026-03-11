@@ -38,8 +38,8 @@ class Turret extends SubsystemBase {
 
   private PositionVoltage positionRequest = new PositionVoltage(0).withSlot(0);
 
-  private static final Angle minRotation = Rotations.of(-0.75);
-  private static final Angle maxRotation = Rotations.of(0.75);
+  private static final Angle minRotation = Rotations.of(-0.6);
+  private static final Angle maxRotation = Rotations.of(0.6);
   private static final Angle minAggresiveRotation = Rotations.of(-0.55);
   private static final Angle maxAggresiveRotation = Rotations.of(0.55);
   private static final double gearRatio = 3.0 * (100.0 / 10.0);
@@ -98,7 +98,7 @@ class Turret extends SubsystemBase {
   }
 
   public Angle getRotation() {
-    return turretMotor.getPosition().getValue();
+    return turretMotor.getPosition(true).getValue();
   }
 
   protected Command targetAngle(Supplier<Angle> targetAngle) {
@@ -118,11 +118,11 @@ class Turret extends SubsystemBase {
   }
 
   // Assume target angle is within a single rotation [-0.5 , 0.5]
-  private Angle wrapTargetAngle(Angle targetAngle, Angle currentAngle, Angle minAngle, Angle maxAngle) {
+  private Angle wrapTargetAngle(Angle targetAngle) {
     double t = targetAngle.in(Rotations);
-    double cur = currentAngle.in(Rotations);
-    double min = minAngle.in(Rotations);
-    double max = maxAngle.in(Rotations);
+    double cur = getRotation().in(Rotations);
+    double min = minRotation.in(Rotations);
+    double max = maxRotation.in(Rotations);
 
     double upper = t + 1.0;
     double middle = t;

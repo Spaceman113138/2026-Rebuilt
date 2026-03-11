@@ -16,8 +16,8 @@ import frc.robot.Util.ExtrapolatingDoubleTreeMap;
 
 /** Add your docs here. */
 public class ShotCalculator {
-  private static final Translation2d redHubPose = Translation2d.kZero;
-  private static final Translation2d blueHubPose = Translation2d.kZero;
+  private static final Translation2d redHubPose = new Translation2d(11.915394, 4.021328);
+  private static final Translation2d blueHubPose = new Translation2d(4.625594, 4.021328);
   private static Translation2d targetPose = Translation2d.kZero;
   private static final int NumItterations = 4;
 
@@ -27,18 +27,19 @@ public class ShotCalculator {
 
   static {
     tofMap.put(0.0, 0.0);
+    tofMap.put(1.0, 1.0);
   }
 
   private static ExtrapolatingDoubleTreeMap hoodMap = new ExtrapolatingDoubleTreeMap();
 
   static {
-    hoodMap.put(0.0, 0.0);
+    hoodMap.put(1.0, 1.0);
   }
 
   private static ExtrapolatingDoubleTreeMap flywheelMap = new ExtrapolatingDoubleTreeMap();
 
   static {
-    flywheelMap.put(0.0, 0.0);
+    flywheelMap.put(1.0, 1.0);
   }
 
   public static double getFlywheelSpeed(double distance) {
@@ -62,9 +63,10 @@ public class ShotCalculator {
 
     Translation2d difference = targetPose.minus(robotPose.getTranslation());
     double distance = difference.getNorm();
-    Angle turretAngle = difference.getAngle().getMeasure();
 
-    return new ShootingSolution(turretAngle, Rotations.of(hoodMap.get(distance)), flywheelMap.get(distance));
+    Angle turretAngle = difference.getAngle().minus(robotPose.getRotation()).getMeasure();
+
+    return new ShootingSolution(turretAngle, Rotations.of(0), 0);
   }
 
   public static ShootingSolution getSOTMhubSolution(Pose2d robotPose, Translation2d robotVelocity) {

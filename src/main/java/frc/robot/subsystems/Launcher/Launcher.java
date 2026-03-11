@@ -71,9 +71,10 @@ public class Launcher extends SubsystemBase {
   }
 
   private Command targetBest() {
-    return flywheel.runAtVelocity(() -> bestShootingSolution.flywheelSpeed())
-        .alongWith(hood.targetAngle(() -> bestShootingSolution.hoodAngle()))
-        .alongWith(turret.targetAngle(() -> bestShootingSolution.turretAngle()));
+    // return flywheel.runAtVelocity(() -> bestShootingSolution.flywheelSpeed())
+    //     .alongWith(hood.targetAngle(() -> bestShootingSolution.hoodAngle()))
+    //     .alongWith(turret.targetAngle(() -> bestShootingSolution.turretAngle()));
+    return turret.targetAngle(() -> bestShootingSolution.turretAngle());
   }
 
   public Command targetDashboard() {
@@ -83,6 +84,6 @@ public class Launcher extends SubsystemBase {
   public Pose2d getTurretPose() {
     var curentPose = drivetrain.getEstimatedPose();
     return curentPose.transformBy(
-        new Transform2d(turretOffset.rotateBy(curentPose.getRotation()), new Rotation2d(turret.getRotation())));
+        new Transform2d(turretOffset.rotateBy(curentPose.getRotation()), Rotation2d.kZero));
   }
 }

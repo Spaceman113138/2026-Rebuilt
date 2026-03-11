@@ -94,6 +94,7 @@ public class RobotContainer {
             .alongWith(Commands.waitUntil(launcher.launcherReady).andThen(indexer.runIndexer())))
         .whileFalse(indexer.idleCommand());
     joystick.leftTrigger().whileTrue(intake.intakeCommand()).onFalse(intake.idleDeployed());
+    joystick.y().whileTrue(launcher.targetHub()).whileFalse(launcher.runToZero());
 
     // Run SysId routines when holding back/start and X/Y.
     // Note that each routine should be run exactly once in a single log.
