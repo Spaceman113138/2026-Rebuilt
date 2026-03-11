@@ -44,13 +44,32 @@
         {
           "type": "path",
           "data": {
-            "pathName": "2 Swipe to Depot"
+            "pathName": "2 Swipe to Off. Shot"
           }
         },
         {
-          "type": "named",
+          "type": "parallel",
           "data": {
-            "name": "runShooter"
+            "commands": [
+              {
+                "type": "wait",
+                "data": {
+                  "waitTime": 4.0
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "runShooter"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Left Off. Shot to Center Line"
           }
         }
       ]

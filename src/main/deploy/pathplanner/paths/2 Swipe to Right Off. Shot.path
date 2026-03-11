@@ -3,29 +3,29 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 8.6,
-        "y": 3.25
+        "x": 5.775,
+        "y": 3.4
       },
       "prevControl": null,
       "nextControl": {
-        "x": 7.46491011235955,
-        "y": 2.8834157303370787
+        "x": 6.170651685393259,
+        "y": 1.0286516853932586
       },
       "isLocked": false,
-      "linkedName": "Bottom Collection"
+      "linkedName": "Botton 2nd Swipe Collection"
     },
     {
       "anchor": {
-        "x": 6.221606741573034,
-        "y": 0.6210112359550566
+        "x": 5.528617977528089,
+        "y": 0.55
       },
       "prevControl": {
-        "x": 6.975741573033707,
-        "y": 0.7433033707865173
+        "x": 6.191033707865167,
+        "y": 0.6312022471910108
       },
       "nextControl": {
-        "x": 5.660212637573453,
-        "y": 0.5299743542253946
+        "x": 5.040278239333809,
+        "y": 0.4901368622181318
       },
       "isLocked": false,
       "linkedName": null
@@ -36,8 +36,8 @@
         "y": 0.475
       },
       "prevControl": {
-        "x": 5.223130865842428,
-        "y": 0.4749999999999998
+        "x": 4.838032961947433,
+        "y": 0.47499999999999987
       },
       "nextControl": null,
       "isLocked": false,
@@ -49,8 +49,8 @@
   "pointTowardsZones": [],
   "eventMarkers": [],
   "globalConstraints": {
-    "maxVelocity": 5.0,
-    "maxAcceleration": 5.0,
+    "maxVelocity": 3.0,
+    "maxAcceleration": 3.0,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 720.0,
     "nominalVoltage": 12.0,
@@ -66,5 +66,5 @@
     "velocity": 0,
     "rotation": 90.0
   },
-  "useDefaultConstraints": false
+  "useDefaultConstraints": true
 }

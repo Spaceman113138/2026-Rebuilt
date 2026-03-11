@@ -3,12 +3,12 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 4.000242510699001,
+        "x": 3.875,
         "y": 0.475
       },
       "prevControl": null,
       "nextControl": {
-        "x": 5.000242510699001,
+        "x": 4.875,
         "y": 0.47499999999999964
       },
       "isLocked": false,
@@ -21,7 +21,7 @@
       },
       "prevControl": {
         "x": 5.648293761532213,
-        "y": 0.34767889080576786
+        "y": 0.34767889080576747
       },
       "nextControl": {
         "x": 5.811654778887304,
@@ -61,7 +61,7 @@
     "rotation": 90.0
   },
   "reversed": false,
-  "folder": "Right Double Swipe to HP Auto Paths",
+  "folder": "Right Auto Paths",
   "idealStartingState": {
     "velocity": 0,
     "rotation": 90.0

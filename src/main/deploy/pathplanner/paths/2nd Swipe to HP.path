@@ -8,40 +8,24 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 5.784022824536377,
-        "y": 2.501768901569187
+        "x": 6.6292471910112365,
+        "y": 3.3216292134831464
       },
       "isLocked": false,
       "linkedName": "Botton 2nd Swipe Collection"
     },
     {
       "anchor": {
-        "x": 5.725,
-        "y": 2.3465049928673327
+        "x": 5.579573033707865,
+        "y": 0.475
       },
       "prevControl": {
-        "x": 5.772838801711839,
-        "y": 2.9546219686162636
+        "x": 6.331084050345137,
+        "y": 0.49855238373484795
       },
       "nextControl": {
-        "x": 5.705393796916594,
-        "y": 2.097274985041926
-      },
-      "isLocked": false,
-      "linkedName": null
-    },
-    {
-      "anchor": {
-        "x": 2.072382310984308,
-        "y": 2.048915834522112
-      },
-      "prevControl": {
-        "x": 3.4623181330423782,
-        "y": 2.4176568474394036
-      },
-      "nextControl": {
-        "x": 0.6824464889262365,
-        "y": 1.6801748216048202
+        "x": 3.7349999999999994,
+        "y": 0.41719101123595465
       },
       "isLocked": false,
       "linkedName": null
@@ -52,8 +36,8 @@
         "y": 0.645
       },
       "prevControl": {
-        "x": 1.5927746077032805,
-        "y": 0.5997860199714706
+        "x": 1.9821460674157296,
+        "y": 0.6312022471910108
       },
       "nextControl": null,
       "isLocked": false,
@@ -66,7 +50,7 @@
       "rotationDegrees": 90.0
     },
     {
-      "waypointRelativePos": 1.8997867803837871,
+      "waypointRelativePos": 1.4285714285714308,
       "rotationDegrees": 90.0
     }
   ],
@@ -86,7 +70,7 @@
     "rotation": 180.0
   },
   "reversed": false,
-  "folder": "Right Double Swipe to HP Auto Paths",
+  "folder": "Right Auto Paths",
   "idealStartingState": {
     "velocity": 0,
     "rotation": 90.0

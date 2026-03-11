@@ -7,13 +7,13 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Left Trench to Neutral Intake"
+            "pathName": "Bottom Trench to Neutral Intake"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "Neutral Intake to Trench(2nd)"
+            "pathName": "Bottom Neutral Intake to Trench"
           }
         },
         {
@@ -38,19 +38,38 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Trench(2nd) to 2 Swipe"
+            "pathName": "Trench to 2nd Swipe"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "2 Swipe to Depot"
+            "pathName": "2 Swipe to Right Off. Shot"
           }
         },
         {
-          "type": "named",
+          "type": "parallel",
           "data": {
-            "name": "runShooter"
+            "commands": [
+              {
+                "type": "wait",
+                "data": {
+                  "waitTime": 4.0
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "runShooter"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Right Off. Shot to Center Line"
           }
         }
       ]
