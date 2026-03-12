@@ -3,45 +3,45 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.96,
-        "y": 7.61
+        "x": 8.66,
+        "y": 4.75
       },
       "prevControl": null,
       "nextControl": {
-        "x": 4.960000000000001,
-        "y": 7.61
+        "x": 7.968880956208583,
+        "y": 5.521225714985246
       },
       "isLocked": false,
-      "linkedName": "top trench setpoint"
+      "linkedName": "Neutral Zone Intake"
     },
     {
       "anchor": {
-        "x": 5.875,
-        "y": 6.878292134831461
+        "x": 6.51714606741573,
+        "y": 7.55
       },
       "prevControl": {
-        "x": 5.854617977528089,
-        "y": 7.734337078651683
+        "x": 7.1453834828461655,
+        "y": 7.410679521786463
       },
       "nextControl": {
-        "x": 5.8929570588022795,
-        "y": 6.1240956651357745
+        "x": 6.007595505617977,
+        "y": 7.663
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 5.752820224719101,
-        "y": 4.992955056179776
+        "x": 3.5,
+        "y": 7.58
       },
       "prevControl": {
-        "x": 5.69167415730337,
-        "y": 6.001865168539327
+        "x": 4.142640449438201,
+        "y": 7.489752808988763
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "top 2nd swipe end"
+      "linkedName": "Left Trench Shot"
     }
   ],
   "rotationTargets": [],
@@ -61,7 +61,7 @@
     "rotation": -90.0
   },
   "reversed": false,
-  "folder": "Left Auto Paths",
+  "folder": "Tag Paths",
   "idealStartingState": {
     "velocity": 0,
     "rotation": -90.0
