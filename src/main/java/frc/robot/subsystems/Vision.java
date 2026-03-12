@@ -99,8 +99,10 @@ public class Vision extends SubsystemBase {
     private double xyStd = 0.0;
     private double angStd = 0.0;
 
-    private static final double constrainedPnpXyStd = 0.4;
-    private static final double constrainedPnpAngStd = 0.14;
+    private static final double enabledXyStd = 0.6;
+    private static final double enabledAngStd = 0.5;
+    private static final double disabledXyStd = 0.4;
+    private static final double disabledAngStd = 0.14;
     public static final AprilTagFieldLayout kTagLayout =
         AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField);
 
@@ -156,9 +158,11 @@ public class Vision extends SubsystemBase {
 
         // Calculate the pose estimation weights for X/Y location. As
         // distance increases, the tag is trusted exponentially less.
-        xyStd = constrainedPnpXyStd * distance * distance;
-
-        angStd = constrainedPnpAngStd * distance * distance;
+        xyStd = Driverstation.isEnabled() ? enabledXyStd : enabledAngStd;
+        angStd = Driverstation.isEnabled() ? enabledAngStd : disabledAngStd;
+        
+        xyStd = xyStd * distance * distance;
+        angStd = Driverstation * distance * distance;
 
         if (!RobotState.isDisabled()) {
           angStd = Double.MAX_VALUE;
