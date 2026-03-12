@@ -9,6 +9,7 @@ import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.Rotation;
 
 import edu.wpi.first.epilogue.Logged;
+import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
@@ -34,6 +35,8 @@ public class Launcher extends SubsystemBase {
 
   public Trigger launcherReady = new Trigger(() -> flywheel.atTarget() && hood.atTarget() && turret.atTarget());
 
+  private LinearFilter distanceFilter = LinearFilter.movingAverage(20);
+
   /** Creates a new Launcher. */
   public Launcher(CommandSwerveDrivetrain Drivetrain) {
     drivetrain = Drivetrain;
@@ -47,6 +50,11 @@ public class Launcher extends SubsystemBase {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
+    var dist = getTurretPose().getTranslation().getDistance(ShotCalculator.blueHubPose);
+    SmartDashboard.putNumber("distance to hub", dist);
+    SmartDashboard.putNumber("avg dist hub", distanceFilter.calculate(dist));
+    bestShootingSolution =
+        ShotCalculator.getSOTMhubSolution(getTurretPose(), drivetrain.getFieldReletiveVelocity());
   }
 
   private Command expose(Command internal) {
@@ -56,29 +64,26 @@ public class Launcher extends SubsystemBase {
   }
 
   public Command runToZero() {
-    return expose(flywheel.idle()
+    return expose(flywheel.idleCommand()
             .alongWith(hood.targetAngle(() -> Rotation.of(0)))
             .alongWith(turret.targetAngle(() -> Rotation.of(0))))
         .withName("Run to zero");
   }
 
   public Command targetHub() {
-    return expose(run(() -> {
-              bestShootingSolution = ShotCalculator.getStaticHubSolution(getTurretPose());
-            })
-            .alongWith(targetBest()))
-        .withName("TargetHub");
+    return expose(targetBest()).withName("TargetHub");
   }
 
   private Command targetBest() {
-    // return flywheel.runAtVelocity(() -> bestShootingSolution.flywheelSpeed())
-    //     .alongWith(hood.targetAngle(() -> bestShootingSolution.hoodAngle()))
-    //     .alongWith(turret.targetAngle(() -> bestShootingSolution.turretAngle()));
-    return turret.targetAngle(() -> bestShootingSolution.turretAngle());
+    return flywheel.runAtVelocity(() -> bestShootingSolution.flywheelSpeed())
+        .alongWith(hood.targetAngle(() -> bestShootingSolution.hoodAngle()))
+        .alongWith(turret.targetAngle(() -> bestShootingSolution.turretAngle()));
   }
 
   public Command targetDashboard() {
-    return expose(flywheel.runAtDashboardVelocity().alongWith(hood.targetDashboardAngle()));
+    return expose(flywheel.runAtDashboardVelocity()
+        .alongWith(hood.targetDashboardAngle()
+            .alongWith(turret.targetAngle(() -> bestShootingSolution.turretAngle()))));
   }
 
   public Pose2d getTurretPose() {

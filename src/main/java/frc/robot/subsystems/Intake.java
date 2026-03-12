@@ -14,6 +14,7 @@ import com.revrobotics.PersistMode;
 import com.revrobotics.ResetMode;
 import com.revrobotics.spark.FeedbackSensor;
 import com.revrobotics.spark.SparkAbsoluteEncoder;
+import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
@@ -37,14 +38,14 @@ public class Intake extends SubsystemBase {
   private NeutralOut neutralRequest = new NeutralOut();
   private VoltageOut voltageRequest = new VoltageOut(0);
 
-  private static final double storePosition = -0.3;
-  private static final double intakePosition = 0.3;
-  private static final double deployPosition = 0.2;
+  private static final double storePosition = 0.4;
+  private static final double intakePosition = -0.3;
+  private static final double deployPosition = 0.0;
 
   /** Creates a new Intake. */
   public Intake() {
     SparkFlexConfig pivotConfig = new SparkFlexConfig();
-    pivotConfig.idleMode(IdleMode.kCoast).inverted(true).smartCurrentLimit(20);
+    pivotConfig.idleMode(IdleMode.kCoast).inverted(false).smartCurrentLimit(20);
     pivotConfig
         .absoluteEncoder
         .inverted(false)
@@ -84,7 +85,7 @@ public class Intake extends SubsystemBase {
   public Command storeCommand() {
     return startRun(
         () -> {
-          // pivotController.setSetpoint(storePosition, ControlType.kPosition);
+          pivotController.setSetpoint(storePosition, ControlType.kPosition);
           rollerMotor.setControl(neutralRequest);
           lowerRollerMotor.setControl(neutralRequest);
         },
@@ -94,7 +95,18 @@ public class Intake extends SubsystemBase {
   public Command deployCommand() {
     return startRun(
         () -> {
-          // pivotController.setSetpoint(intakePosition, ControlType.kPosition);
+          pivotController.setSetpoint(intakePosition, ControlType.kPosition);
+          rollerMotor.setControl(neutralRequest);
+          lowerRollerMotor.setControl(neutralRequest);
+        },
+        () -> {});
+  }
+
+  public Command agitate() {
+    return startRun(
+        () -> {
+          System.out.println("DFJSIDJIEFHSIEHFIHSIOEHFOISHFIOE");
+          pivotController.setSetpoint(deployPosition, ControlType.kPosition);
           rollerMotor.setControl(neutralRequest);
           lowerRollerMotor.setControl(neutralRequest);
         },
@@ -104,7 +116,7 @@ public class Intake extends SubsystemBase {
   public Command idleDeployed() {
     return startRun(
         () -> {
-          // pivotController.setSetpoint(deployPosition, ControlType.kPosition);
+          pivotController.setSetpoint(intakePosition, ControlType.kPosition);
           rollerMotor.setControl(neutralRequest);
           lowerRollerMotor.setControl(neutralRequest);
         },
@@ -114,9 +126,9 @@ public class Intake extends SubsystemBase {
   public Command intakeCommand() {
     return startRun(
         () -> {
-          // pivotController.setSetpoint(intakePosition, ControlType.kPosition);
-          rollerMotor.setControl(voltageRequest.withOutput(8.0));
-          lowerRollerMotor.setControl(voltageRequest.withOutput(8.0));
+          pivotController.setSetpoint(intakePosition, ControlType.kPosition);
+          rollerMotor.setControl(voltageRequest.withOutput(6.0));
+          lowerRollerMotor.setControl(voltageRequest.withOutput(6.0));
         },
         () -> {});
   }

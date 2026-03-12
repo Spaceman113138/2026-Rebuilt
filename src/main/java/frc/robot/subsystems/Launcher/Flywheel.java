@@ -67,7 +67,7 @@ class Flywheel extends SubsystemBase {
 
     motorConfig.Feedback.withSensorToMechanismRatio(motorToFlywheelRatio);
 
-    motorConfig.Slot0.withKP(0.0).withKD(0.0).withKS(0.2).withKV(1.7);
+    motorConfig.Slot0.withKP(3).withKD(0.0).withKS(0.2).withKV(0.095);
 
     return motorConfig;
   }
@@ -80,7 +80,7 @@ class Flywheel extends SubsystemBase {
   public boolean atTarget() {
     return velocityControlRequest
         .getVelocityMeasure()
-        .isNear(leftFlywheelMotor.getVelocity().getValue(), RotationsPerSecond.of(10));
+        .isNear(leftFlywheelMotor.getVelocity().getValue(), RotationsPerSecond.of(20));
   }
 
   protected Command idleCommand() {
@@ -93,7 +93,6 @@ class Flywheel extends SubsystemBase {
   }
 
   protected Command runAtDashboardVelocity() {
-    return run(() ->
-        leftFlywheelMotor.setControl(velocityControlRequest.withVelocity(speedEntry.getDouble(0) / 100.0)));
+    return run(() -> leftFlywheelMotor.setControl(velocityControlRequest.withVelocity(speedEntry.getDouble(0))));
   }
 }

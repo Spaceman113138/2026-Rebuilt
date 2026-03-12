@@ -5,6 +5,7 @@
 package frc.robot.subsystems.Launcher;
 
 import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.Rotations;
 
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
@@ -114,41 +115,19 @@ class Turret extends SubsystemBase {
   public boolean atTarget() {
     return positionRequest
         .getPositionMeasure()
-        .isNear(turretMotor.getPosition().getValue(), Degrees.of(1.0));
+        .isNear(turretMotor.getPosition().getValue(), Degrees.of(10.0));
   }
 
   // Assume target angle is within a single rotation [-0.5 , 0.5]
   private Angle wrapTargetAngle(Angle targetAngle) {
-    double t = targetAngle.in(Rotations);
-    double cur = getRotation().in(Rotations);
-    double min = minRotation.in(Rotations);
-    double max = maxRotation.in(Rotations);
+    double target = targetAngle.in(Radians);
+    double curentAngle = getRotation().in(Radians);
 
-    double upper = t + 1.0;
-    double middle = t;
-    double lower = upper - 1.0;
+    double tau = (2 * Math.PI);
 
-    boolean upperValid = upper >= min && upper <= max;
-    boolean middleValid = middle >= min && middle <= max;
-    boolean lowerValid = lower >= min && lower <= max;
-
-    double result = 0;
-    if (upperValid && middleValid && lowerValid) {
-      double upperOrMiddle = Math.abs(upper - cur) < Math.abs(middle - cur) ? upper : middle;
-      result = Math.abs(upperOrMiddle - cur) < Math.abs(lower - cur) ? upperOrMiddle : lower;
-    } else if (upperValid && middleValid) {
-      result = Math.abs(upper - cur) < Math.abs(middle - cur) ? upper : middle;
-    } else if (middleValid && lowerValid) {
-      result = Math.abs(middle - cur) < Math.abs(lower - cur) ? middle : lower;
-    } else if (upperValid) {
-      result = upper;
-    } else if (middleValid) {
-      result = middle;
-    } else {
-      result = lower; // lowerValid, should always be true given valid inputs
-    }
-
-    return Rotations.of(result);
+    var deltaAngle = target - curentAngle;
+    deltaAngle = deltaAngle - tau * Math.floor((deltaAngle + Math.PI) / tau);
+    return Radians.of(deltaAngle + curentAngle);
   }
 
   private Command targetDashboardAngle() {
