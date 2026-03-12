@@ -7,13 +7,13 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Bottom Trench to Neutral Intake"
+            "pathName": "Start to Neutral Intake"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "Bottom Neutral Intake to Trench"
+            "pathName": "Neutral intake to trench shot"
           }
         },
         {
@@ -33,24 +33,6 @@
                 }
               }
             ]
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "Trench to 2nd Swipe"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "2nd Swipe to HP"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "runShooter"
           }
         }
       ]

@@ -3,45 +3,29 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 5.775,
-        "y": 3.4
+        "x": 3.6,
+        "y": 2.95
       },
       "prevControl": null,
       "nextControl": {
-        "x": 6.170651685393259,
-        "y": 1.0286516853932586
-      },
-      "isLocked": false,
-      "linkedName": "Botton 2nd Swipe Collection"
-    },
-    {
-      "anchor": {
-        "x": 5.528617977528089,
-        "y": 0.55
-      },
-      "prevControl": {
-        "x": 6.191033707865167,
-        "y": 0.6312022471910108
-      },
-      "nextControl": {
-        "x": 5.040278239333809,
-        "y": 0.4901368622181318
+        "x": 3.8924298792049097,
+        "y": 3.254461493358866
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 3.875,
-        "y": 0.475
+        "x": 2.5018876404494375,
+        "y": 2.2923370786516863
       },
       "prevControl": {
-        "x": 4.838032961947433,
-        "y": 0.47499999999999987
+        "x": 2.3267948270044068,
+        "y": 2.106866239655388
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "Bottom Trench After Start"
+      "linkedName": null
     }
   ],
   "rotationTargets": [],
@@ -58,13 +42,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 90.0
+    "rotation": 0.0
   },
   "reversed": false,
-  "folder": "Right Auto Paths",
+  "folder": "Root Paths",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 90.0
+    "rotation": 0.0
   },
-  "useDefaultConstraints": true
+  "useDefaultConstraints": false
 }

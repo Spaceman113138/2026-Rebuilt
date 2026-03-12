@@ -3,54 +3,61 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 8.6,
-        "y": 3.25
+        "x": 4.475,
+        "y": 7.625
       },
       "prevControl": null,
       "nextControl": {
-        "x": 7.46491011235955,
-        "y": 2.8834157303370787
+        "x": 5.273842696625556,
+        "y": 7.622235955052531
       },
       "isLocked": false,
-      "linkedName": "Bottom Collection"
+      "linkedName": "Left Trench Start"
     },
     {
       "anchor": {
-        "x": 6.221606741573034,
-        "y": 0.6210112359550566
+        "x": 5.956640449434544,
+        "y": 7.625
       },
       "prevControl": {
-        "x": 6.975741573033707,
-        "y": 0.7433033707865173
+        "x": 5.706640449434545,
+        "y": 7.625
       },
       "nextControl": {
-        "x": 5.660212637573453,
-        "y": 0.5299743542253946
+        "x": 7.956640449434544,
+        "y": 7.625
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 3.875,
-        "y": 0.475
+        "x": 8.67,
+        "y": 4.75
       },
       "prevControl": {
-        "x": 5.223130865842428,
-        "y": 0.4749999999999998
+        "x": 8.557898876404495,
+        "y": 6.584382022471909
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "Bottom Trench After Start"
+      "linkedName": "Neutral Zone Intake"
     }
   ],
   "rotationTargets": [],
   "constraintZones": [],
   "pointTowardsZones": [],
-  "eventMarkers": [],
+  "eventMarkers": [
+    {
+      "name": "runIntake",
+      "waypointRelativePos": 1.002481389578172,
+      "endWaypointRelativePos": null,
+      "command": null
+    }
+  ],
   "globalConstraints": {
-    "maxVelocity": 5.0,
-    "maxAcceleration": 5.0,
+    "maxVelocity": 3.0,
+    "maxAcceleration": 3.0,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 720.0,
     "nominalVoltage": 12.0,
@@ -58,13 +65,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 90.0
+    "rotation": -90.0
   },
   "reversed": false,
-  "folder": "Right Auto Paths",
+  "folder": "Tag Paths",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 90.0
+    "rotation": -90.0
   },
-  "useDefaultConstraints": false
+  "useDefaultConstraints": true
 }
