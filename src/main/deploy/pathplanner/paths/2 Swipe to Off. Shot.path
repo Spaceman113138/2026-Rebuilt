@@ -3,42 +3,51 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 4.42,
-        "y": 7.250256776034237
+        "x": 5.752820224719101,
+        "y": 4.992955056179776
       },
       "prevControl": null,
       "nextControl": {
-        "x": 7.4678031383737515,
-        "y": 7.4572753209700435
+        "x": 6.313325842696627,
+        "y": 7.000584269662921
       },
       "isLocked": false,
-      "linkedName": "Top Trench Set-Point"
+      "linkedName": "top 2nd swipe end"
     },
     {
       "anchor": {
-        "x": 8.606405135520683,
-        "y": 5.0
+        "x": 5.32,
+        "y": 7.57
       },
       "prevControl": {
-        "x": 8.360570613409415,
-        "y": 7.263195435092724
+        "x": 6.125089887640447,
+        "y": 7.478280898876406
+      },
+      "nextControl": {
+        "x": 4.979626024077403,
+        "y": 7.608776782067131
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 3.96,
+        "y": 7.61
+      },
+      "prevControl": {
+        "x": 4.805853932584268,
+        "y": 7.579426966292135
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "Top Collection"
+      "linkedName": "top trench setpoint"
     }
   ],
   "rotationTargets": [],
   "constraintZones": [],
   "pointTowardsZones": [],
-  "eventMarkers": [
-    {
-      "name": "runIntake",
-      "waypointRelativePos": 0.24,
-      "endWaypointRelativePos": null,
-      "command": null
-    }
-  ],
+  "eventMarkers": [],
   "globalConstraints": {
     "maxVelocity": 3.0,
     "maxAcceleration": 3.0,
@@ -52,7 +61,7 @@
     "rotation": -90.0
   },
   "reversed": false,
-  "folder": "Left Double Swipe to Depot Auto Paths",
+  "folder": "Left Auto Paths",
   "idealStartingState": {
     "velocity": 0,
     "rotation": -90.0

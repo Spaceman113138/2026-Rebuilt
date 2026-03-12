@@ -3,61 +3,40 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 5.824593437945791,
-        "y": 4.998930099857347
+        "x": 3.96,
+        "y": 7.61
       },
       "prevControl": null,
       "nextControl": {
-        "x": 5.746961483594864,
-        "y": 5.865820256776035
+        "x": 5.26444943819909,
+        "y": 7.599808988761942
       },
       "isLocked": false,
-      "linkedName": "Top 2nd Swipe Collection"
+      "linkedName": "top trench setpoint"
     },
     {
       "anchor": {
-        "x": 3.2498002853067045,
-        "y": 5.96
+        "x": 8.698022471910113,
+        "y": 7.62223595505618
       },
       "prevControl": {
-        "x": 3.668889452615086,
-        "y": 5.874313387205968
-      },
-      "nextControl": {
-        "x": 2.318216833095578,
-        "y": 6.150470756062767
-      },
-      "isLocked": false,
-      "linkedName": null
-    },
-    {
-      "anchor": {
-        "x": 0.75,
-        "y": 5.96
-      },
-      "prevControl": {
-        "x": 2.0076890156918683,
-        "y": 5.956390870185448
+        "x": 6.924522975799336,
+        "y": 7.62223595505618
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "Depot"
+      "linkedName": "Top Center Line"
     }
   ],
-  "rotationTargets": [
-    {
-      "waypointRelativePos": 1.04904051172708,
-      "rotationDegrees": -90.0
-    }
-  ],
+  "rotationTargets": [],
   "constraintZones": [
     {
       "name": "Constraints Zone",
-      "minWaypointRelativePos": 1.4476704929101962,
-      "maxWaypointRelativePos": 2.0,
+      "minWaypointRelativePos": 0.6496583143507992,
+      "maxWaypointRelativePos": 1.0,
       "constraints": {
         "maxVelocity": 1.5,
-        "maxAcceleration": 2.0,
+        "maxAcceleration": 1.5,
         "maxAngularVelocity": 540.0,
         "maxAngularAcceleration": 720.0,
         "nominalVoltage": 12.0,
@@ -77,10 +56,10 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 180.0
+    "rotation": -90.0
   },
   "reversed": false,
-  "folder": "Left Double Swipe to Depot Auto Paths",
+  "folder": "Left Auto Paths",
   "idealStartingState": {
     "velocity": 0,
     "rotation": -90.0
