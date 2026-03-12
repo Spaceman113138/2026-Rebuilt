@@ -19,7 +19,7 @@ public class ShotCalculator {
   private static final Translation2d redHubPose = new Translation2d(11.915394, 4.021328);
   public static final Translation2d blueHubPose = new Translation2d(4.625594, 4.021328);
   private static Translation2d targetPose = Translation2d.kZero;
-  private static final int NumItterations = 4;
+  private static final int NumItterations = 5;
 
   public record ShootingSolution(Angle turretAngle, Angle hoodAngle, double flywheelSpeed) {}
 
@@ -100,6 +100,7 @@ public class ShotCalculator {
           robotVelocity.times(tof)); // Shift goal by predicted change in flight due to robot velocity
     }
 
+    difference = targetPose.minus(robotPose.getTranslation());
     Angle turretAngle = difference.getAngle().minus(robotPose.getRotation()).getMeasure();
 
     // TODO: Check if shot is good (there are situations where it diverges or converges too slowly)
