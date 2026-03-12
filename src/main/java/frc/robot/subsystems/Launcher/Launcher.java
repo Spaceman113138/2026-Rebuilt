@@ -24,7 +24,7 @@ import frc.robot.subsystems.Launcher.ShotCalculator.ShootingSolution;
 @Logged
 public class Launcher extends SubsystemBase {
 
-  private final Flywheel flywheel = new Flywheel();
+  public final Flywheel flywheel = new Flywheel();
   private final Hood hood = new Hood();
   private final Turret turret = new Turret();
   private CommandSwerveDrivetrain drivetrain;

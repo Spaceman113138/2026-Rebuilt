@@ -18,6 +18,7 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.Indexer;
@@ -74,8 +75,8 @@ public class RobotContainer {
         drivetrain.applyRequest(
             () -> drive.withVelocityX((Math.pow(-joystick.getLeftY(), 3))
                     * MaxSpeed) // Drive forward with negative Y (forward)
-                .withVelocityY(Math.pow(-joystick.getLeftX(), 3)
-                    * MaxSpeed) // Drive left with negative X (left)
+                .withVelocityY(Math.pow(-joystick.getLeftX(), 3) * MaxSpeed
+                    + drivetrain.getTrenchOffset()) // Drive left with negative X (left)
                 .withRotationalRate(-joystick.getRightX()
                     * MaxAngularRate) // Drive counterclockwise with negative X (left)
             ));
@@ -100,14 +101,14 @@ public class RobotContainer {
     joystick.leftTrigger().whileTrue(intake.intakeCommand()).onFalse(intake.idleDeployed());
 
     // Reset the field-centric heading on left bumper press.
-    joystick.a().onTrue(drivetrain.runOnce(drivetrain::seedFieldCentric));
+    // joystick.a().onTrue(drivetrain.runOnce(drivetrain::seedFieldCentric));
 
     // Run SysId routines when holding back/start and X/Y.
     // Note that each routine should be run exactly once in a single log.
-    // joystick.back().and(joystick.y()).whileTrue(drivetrain.sysIdDynamic(Direction.kForward));
-    // joystick.back().and(joystick.x()).whileTrue(drivetrain.sysIdDynamic(Direction.kReverse));
-    // joystick.start().and(joystick.y()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kForward));
-    // joystick.start().and(joystick.x()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kReverse));
+    joystick.a().whileTrue(launcher.flywheel.sysIdDynamic(Direction.kForward));
+    joystick.b().whileTrue(launcher.flywheel.sysIdDynamic(Direction.kReverse));
+    joystick.x().whileTrue(launcher.flywheel.sysIdQuasistatic(Direction.kForward));
+    joystick.y().whileTrue(launcher.flywheel.sysIdQuasistatic(Direction.kReverse));
 
     drivetrain.registerTelemetry(logger::telemeterize);
   }
