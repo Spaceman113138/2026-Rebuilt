@@ -45,6 +45,8 @@ public class Launcher extends SubsystemBase {
     SmartDashboard.putData("Hood", hood);
     SmartDashboard.putData("Turret", turret);
     SmartDashboard.putData("Launcher", this);
+
+    setDefaultCommand(runToZero());
   }
 
   @Override
@@ -53,8 +55,7 @@ public class Launcher extends SubsystemBase {
     var dist = getTurretPose().getTranslation().getDistance(ShotCalculator.blueHubPose);
     SmartDashboard.putNumber("distance to hub", dist);
     SmartDashboard.putNumber("avg dist hub", distanceFilter.calculate(dist));
-    bestShootingSolution =
-        ShotCalculator.getSOTMhubSolution(getTurretPose(), drivetrain.getFieldReletiveVelocity());
+    bestShootingSolution = ShotCalculator.getPassingSolution(getTurretPose());
   }
 
   private Command expose(Command internal) {
@@ -66,7 +67,7 @@ public class Launcher extends SubsystemBase {
   public Command runToZero() {
     return expose(flywheel.idleCommand()
             .alongWith(hood.targetAngle(() -> Rotation.of(0)))
-            .alongWith(turret.targetAngle(() -> Rotation.of(0))))
+            .alongWith(turret.targetAngle(() -> bestShootingSolution.turretAngle())))
         .withName("Run to zero");
   }
 

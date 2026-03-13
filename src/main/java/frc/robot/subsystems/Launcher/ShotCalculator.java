@@ -18,6 +18,7 @@ import frc.robot.Util.ExtrapolatingDoubleTreeMap;
 public class ShotCalculator {
   private static final Translation2d redHubPose = new Translation2d(11.915394, 4.021328);
   public static final Translation2d blueHubPose = new Translation2d(4.625594, 4.021328);
+  private static final Translation2d blueRightPass = new Translation2d(1.15, 1.177);
   private static Translation2d targetPose = Translation2d.kZero;
   private static final int NumItterations = 5;
 
@@ -80,6 +81,21 @@ public class ShotCalculator {
     Angle turretAngle = difference.getAngle().minus(robotPose.getRotation()).getMeasure();
 
     return new ShootingSolution(turretAngle, Degrees.of(hoodMap.get(distance)), flywheelMap.get(distance));
+  }
+
+  public static ShootingSolution getPassingSolution(Pose2d robotPose) {
+    if (DriverStation.getAlliance().orElseGet(() -> Alliance.Blue) == Alliance.Blue) {
+      targetPose = blueRightPass;
+    } else {
+      targetPose = redHubPose;
+    }
+
+    Translation2d difference = targetPose.minus(robotPose.getTranslation());
+    double distance = difference.getNorm();
+
+    Angle turretAngle = difference.getAngle().minus(robotPose.getRotation()).getMeasure();
+
+    return new ShootingSolution(turretAngle, Degrees.of(hoodMap.get(distance)), flywheelMap.get(distance) - 10.0);
   }
 
   public static ShootingSolution getSOTMhubSolution(Pose2d robotPose, Translation2d robotVelocity) {

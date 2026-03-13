@@ -18,7 +18,6 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.Indexer;
@@ -61,6 +60,7 @@ public class RobotContainer {
     SmartDashboard.putData("Auto Mode", autoChooser);
     SmartDashboard.putNumber("Auto Delay", 0.0);
     SmartDashboard.putData("Auto Tag", tagger.getChosser());
+    SmartDashboard.putData("Intake", intake);
 
     configureBindings();
 
@@ -68,6 +68,7 @@ public class RobotContainer {
   }
 
   private void configureBindings() {
+    RobotModeTriggers.disabled().negate().onTrue(launcher.idle());
     // Note that X is defined as forward according to WPILib convention,
     // and Y is defined as to the left according to WPILib convention.
     drivetrain.setDefaultCommand(
@@ -93,22 +94,22 @@ public class RobotContainer {
     // ));
 
     joystick.rightTrigger()
-        .whileTrue(intake.agitate()
-            .alongWith(launcher.targetHub())
+        .whileTrue(launcher.targetHub()
             .alongWith(Commands.waitUntil(launcher.launcherReady).andThen(indexer.runIndexer())))
-        .whileFalse(
-            indexer.idleCommand().alongWith(launcher.runToZero()).alongWith(intake.idleDeployed()));
+        .whileFalse(indexer.idleCommand().alongWith(intake.idleDeployed()));
     joystick.leftTrigger().whileTrue(intake.intakeCommand()).onFalse(intake.idleDeployed());
+
+    joystick.a().whileTrue(intake.agitate()).onFalse(intake.deployCommand());
 
     // Reset the field-centric heading on left bumper press.
     // joystick.a().onTrue(drivetrain.runOnce(drivetrain::seedFieldCentric));
 
     // Run SysId routines when holding back/start and X/Y.
     // Note that each routine should be run exactly once in a single log.
-    joystick.a().whileTrue(launcher.flywheel.sysIdDynamic(Direction.kForward));
-    joystick.b().whileTrue(launcher.flywheel.sysIdDynamic(Direction.kReverse));
-    joystick.x().whileTrue(launcher.flywheel.sysIdQuasistatic(Direction.kForward));
-    joystick.y().whileTrue(launcher.flywheel.sysIdQuasistatic(Direction.kReverse));
+    // joystick.a().whileTrue(launcher.flywheel.sysIdDynamic(Direction.kForward));
+    // joystick.b().whileTrue(launcher.flywheel.sysIdDynamic(Direction.kReverse));
+    // joystick.x().whileTrue(launcher.flywheel.sysIdQuasistatic(Direction.kForward));
+    // joystick.y().whileTrue(launcher.flywheel.sysIdQuasistatic(Direction.kReverse));
 
     drivetrain.registerTelemetry(logger::telemeterize);
   }

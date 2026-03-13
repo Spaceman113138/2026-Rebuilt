@@ -15,6 +15,7 @@ import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotState;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
@@ -55,7 +56,21 @@ public class Vision extends SubsystemBase {
           new Rotation3d(0.0, Math.toRadians(15), Math.toRadians(180.0))),
       visionSim,
       useSim);
-  private Camera[] cameras = {leftCamera, backCamera};
+
+  private Camera frontCamera = new Camera(
+      "FrontCam",
+      new Transform3d(
+          -0.29502575, 0.088337, 0.468, new Rotation3d(0.0, Math.toRadians(-15), Math.toRadians(0.0))),
+      visionSim,
+      useSim);
+
+  private Camera rightCamera = new Camera(
+      "RightCam",
+      new Transform3d(-0.378, -0.238, 0.267, new Rotation3d(0.0, Math.toRadians(-15), Math.toRadians(-90.0))),
+      visionSim,
+      useSim);
+
+  private Camera[] cameras = {leftCamera, backCamera, frontCamera, rightCamera};
 
   /** Creates a new Vision. */
   public Vision(
@@ -158,11 +173,11 @@ public class Vision extends SubsystemBase {
 
         // Calculate the pose estimation weights for X/Y location. As
         // distance increases, the tag is trusted exponentially less.
-        xyStd = Driverstation.isEnabled() ? enabledXyStd : enabledAngStd;
-        angStd = Driverstation.isEnabled() ? enabledAngStd : disabledAngStd;
-        
+        xyStd = DriverStation.isEnabled() ? enabledXyStd : enabledXyStd;
+        angStd = DriverStation.isEnabled() ? enabledAngStd : disabledAngStd;
+
         xyStd = xyStd * distance * distance;
-        angStd = Driverstation * distance * distance;
+        angStd = angStd * distance * distance;
 
         if (!RobotState.isDisabled()) {
           angStd = Double.MAX_VALUE;

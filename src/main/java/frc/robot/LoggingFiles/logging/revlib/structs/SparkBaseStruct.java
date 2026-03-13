@@ -9,7 +9,7 @@ public abstract class SparkBaseStruct<T extends SparkBase> implements Struct<T> 
 
   @Override
   public int getSize() {
-    return kSizeDouble * 6 + SparkFaultsStruct.struct.getSize() * 2 + SparkWarningsStruct.struct.getSize() * 2;
+    return kSizeDouble * 7 + SparkFaultsStruct.struct.getSize() * 2 + SparkWarningsStruct.struct.getSize() * 2;
   }
 
   @Override
@@ -23,7 +23,8 @@ public abstract class SparkBaseStruct<T extends SparkBase> implements Struct<T> 
         + "SparkFaults faults; "
         + "SparkFaults stickyFaults; "
         + "SparkWarnings warnings; "
-        + "SparkWarnings stickyWarnings;");
+        + "SparkWarnings stickyWarnings;"
+        + "double setpoint");
   }
 
   @Override
@@ -55,5 +56,7 @@ public abstract class SparkBaseStruct<T extends SparkBase> implements Struct<T> 
     SparkFaultsStruct.struct.pack(bb, value.getStickyFaults().rawBits);
     SparkWarningsStruct.struct.pack(bb, value.getWarnings().rawBits);
     SparkWarningsStruct.struct.pack(bb, value.getStickyWarnings().rawBits);
+
+    bb.putDouble(value.getClosedLoopController().getSetpoint());
   }
 }

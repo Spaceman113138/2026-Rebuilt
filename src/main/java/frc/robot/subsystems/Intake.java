@@ -38,9 +38,9 @@ public class Intake extends SubsystemBase {
   private NeutralOut neutralRequest = new NeutralOut();
   private VoltageOut voltageRequest = new VoltageOut(0);
 
-  private static final double storePosition = 0.4;
-  private static final double intakePosition = -0.3;
-  private static final double deployPosition = 0.0;
+  private static final double storePosition = 0.2;
+  private static final double intakePosition = -0.13;
+  private static final double deployPosition = 0.1;
 
   /** Creates a new Intake. */
   public Intake() {
@@ -48,7 +48,7 @@ public class Intake extends SubsystemBase {
     pivotConfig.idleMode(IdleMode.kCoast).inverted(false).smartCurrentLimit(20);
     pivotConfig
         .absoluteEncoder
-        .inverted(false)
+        .inverted(true)
         .positionConversionFactor(0.5)
         .velocityConversionFactor(0.5)
         .zeroCentered(true);
@@ -56,7 +56,8 @@ public class Intake extends SubsystemBase {
         .closedLoop
         .feedbackSensor(FeedbackSensor.kAbsoluteEncoder)
         .p(25.0)
-        .d(0.2);
+        .d(0.2)
+        .positionWrappingEnabled(false);
     pivotMotor.configure(pivotConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
     TalonFXConfiguration rollerConfig = new TalonFXConfiguration();
@@ -68,8 +69,8 @@ public class Intake extends SubsystemBase {
         .CurrentLimits
         .withSupplyCurrentLimitEnable(true)
         .withStatorCurrentLimitEnable(true)
-        .withSupplyCurrentLimit(30)
-        .withStatorCurrentLimit(60);
+        .withSupplyCurrentLimit(40)
+        .withStatorCurrentLimit(100);
 
     rollerMotor.getConfigurator().apply(rollerConfig);
     lowerRollerMotor
@@ -104,13 +105,13 @@ public class Intake extends SubsystemBase {
 
   public Command agitate() {
     return startRun(
-        () -> {
-          System.out.println("DFJSIDJIEFHSIEHFIHSIOEHFOISHFIOE");
-          pivotController.setSetpoint(deployPosition, ControlType.kPosition);
-          rollerMotor.setControl(neutralRequest);
-          lowerRollerMotor.setControl(neutralRequest);
-        },
-        () -> {});
+            () -> {
+              pivotController.setSetpoint(deployPosition, ControlType.kPosition);
+              rollerMotor.setControl(neutralRequest);
+              lowerRollerMotor.setControl(neutralRequest);
+            },
+            () -> {})
+        .withName("agitate");
   }
 
   public Command idleDeployed() {
@@ -127,8 +128,9 @@ public class Intake extends SubsystemBase {
     return startRun(
         () -> {
           pivotController.setSetpoint(intakePosition, ControlType.kPosition);
-          rollerMotor.setControl(voltageRequest.withOutput(6.0));
-          lowerRollerMotor.setControl(voltageRequest.withOutput(6.0));
+          rollerMotor.setControl(voltageRequest.withOutput(8.0));
+          lowerRollerMotor.setControl(voltageRequest.withOutput(8
+          ));
         },
         () -> {});
   }
