@@ -82,6 +82,8 @@ class Hood extends SubsystemBase {
     hoodMotor.setPosition(Degrees.of(15));
     SmartDashboard.putData("HoodCommand", targetDashboardAngle());
     SmartDashboard.putData("ZeroHoodCommand", zeroHood());
+
+    setDefaultCommand(targetAngle(() -> Degrees.of(15.0)));
   }
 
   @Override

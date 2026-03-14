@@ -42,8 +42,8 @@ public class ShotCalculator {
 
   static {
     hoodMap.put(5.759, 33.0);
-    hoodMap.put(4.561, 30.0);
-    hoodMap.put(3.786, 30.0);
+    hoodMap.put(4.561, 31.0);
+    hoodMap.put(3.786, 31.0);
     hoodMap.put(2.93, 28.0);
     hoodMap.put(2.578, 26.0);
     hoodMap.put(1.7, 23.0);

@@ -18,7 +18,9 @@ import frc.robot.subsystems.CommandSwerveDrivetrain;
 /** Add your docs here. */
 public class AutoTagger {
   private PathPlannerPath depotPath;
+  private PathPlannerPath humanPath;
   private boolean depotAvalible = true;
+  private boolean humanAvalible = true;
   private Alert depotAlert = new Alert("Depot Path NOT Found", AlertType.kWarning);
 
   private SendableChooser<Command> tagChooser = new SendableChooser<>();
@@ -37,6 +39,13 @@ public class AutoTagger {
       depotAvalible = false;
       depotAlert.set(true);
     }
+    try {
+      humanPath = PathPlannerPath.fromPathFile("Human Player");
+      tagChooser.addOption("Human Player", getHumanPlayer());
+    } catch (Exception e) {
+      depotAvalible = false;
+      depotAlert.set(true);
+    }
   }
 
   public SendableChooser<Command> getChosser() {
@@ -45,5 +54,9 @@ public class AutoTagger {
 
   private Command getDepot() {
     return AutoBuilder.pathfindThenFollowPath(depotPath, constraints);
+  }
+
+  private Command getHumanPlayer() {
+    return AutoBuilder.pathfindThenFollowPath(humanPath, constraints);
   }
 }

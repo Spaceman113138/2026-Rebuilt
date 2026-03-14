@@ -26,6 +26,8 @@ public class Indexer extends SubsystemBase {
     ovalMotor.configure(
         motorConfig().inverted(true), ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     kickerMotor.configure(motorConfig(), ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+
+    setDefaultCommand(idleCommand());
   }
 
   private SparkFlexConfig motorConfig() {

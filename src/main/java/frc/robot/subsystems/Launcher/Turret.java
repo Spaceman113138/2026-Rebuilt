@@ -108,7 +108,7 @@ class Turret extends SubsystemBase {
   public boolean atTarget() {
     return positionRequest
         .getPositionMeasure()
-        .isNear(turretMotor.getPosition().getValue(), Degrees.of(10.0));
+        .isNear(turretMotor.getPosition().getValue(), Degrees.of(5.0));
   }
 
   // Assume target angle is within a single rotation [-0.5 , 0.5]

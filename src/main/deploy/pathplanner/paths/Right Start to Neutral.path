@@ -20,7 +20,7 @@
         "y": 0.52
       },
       "prevControl": {
-        "x": 6.435528740781464,
+        "x": 6.435528740781463,
         "y": 0.515162196382012
       },
       "nextControl": {
@@ -64,9 +64,14 @@
   "eventMarkers": [
     {
       "name": "runIntake",
-      "waypointRelativePos": 0.45,
+      "waypointRelativePos": 0.22147197839298793,
       "endWaypointRelativePos": null,
-      "command": null
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "runIntake"
+        }
+      }
     }
   ],
   "globalConstraints": {

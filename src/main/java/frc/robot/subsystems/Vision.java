@@ -17,6 +17,7 @@ import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotState;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
 import java.util.function.Supplier;
@@ -84,12 +85,16 @@ public class Vision extends SubsystemBase {
     } else {
       visionSim = null;
     }
+
+    SmartDashboard.putBoolean("UseCameras", true);
   }
 
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
-
+    if (!SmartDashboard.getBoolean("UseCameras", false)) {
+      return;
+    }
     for (var camera : cameras) {
       camera.update(estimateConsumer);
     }
@@ -114,7 +119,7 @@ public class Vision extends SubsystemBase {
     private double xyStd = 0.0;
     private double angStd = 0.0;
 
-    private static final double enabledXyStd = 0.6;
+    private static final double enabledXyStd = 0.1;
     private static final double enabledAngStd = 0.5;
     private static final double disabledXyStd = 0.4;
     private static final double disabledAngStd = 0.14;
@@ -173,7 +178,7 @@ public class Vision extends SubsystemBase {
 
         // Calculate the pose estimation weights for X/Y location. As
         // distance increases, the tag is trusted exponentially less.
-        xyStd = DriverStation.isEnabled() ? enabledXyStd : enabledXyStd;
+        xyStd = DriverStation.isEnabled() ? enabledXyStd : disabledXyStd;
         angStd = DriverStation.isEnabled() ? enabledAngStd : disabledAngStd;
 
         xyStd = xyStd * distance * distance;

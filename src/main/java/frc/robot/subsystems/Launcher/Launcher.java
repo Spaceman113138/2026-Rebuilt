@@ -59,15 +59,13 @@ public class Launcher extends SubsystemBase {
     SmartDashboard.putNumber("avg dist hub", distanceFilter.calculate(dist));
     if (DriverStation.getAlliance().orElseGet(() -> Alliance.Blue) == Alliance.Blue) {
       if (getTurretPose().getX() < 4.625594) {
-        bestShootingSolution =
-            ShotCalculator.getSOTMhubSolution(getTurretPose(), drivetrain.getFieldReletiveVelocity());
+        bestShootingSolution = ShotCalculator.getStaticHubSolution(getTurretPose());
       } else {
         bestShootingSolution = ShotCalculator.getPassingSolution(getTurretPose());
       }
     } else {
       if (getTurretPose().getX() > 16.540988 - 4.625594) {
-        bestShootingSolution =
-            ShotCalculator.getSOTMhubSolution(getTurretPose(), drivetrain.getFieldReletiveVelocity());
+        bestShootingSolution = ShotCalculator.getStaticHubSolution(getTurretPose());
       } else {
         bestShootingSolution = ShotCalculator.getPassingSolution(getTurretPose());
       }

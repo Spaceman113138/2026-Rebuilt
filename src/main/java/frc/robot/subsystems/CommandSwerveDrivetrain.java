@@ -40,7 +40,7 @@ import java.util.function.Supplier;
  */
 @Logged
 public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Subsystem {
-  private PIDController yAxisController = new PIDController(5.0, 0.0, 0.0);
+  private PIDController yAxisController = new PIDController(2.0, 0.0, 0.0);
   private static final double kSimLoopPeriod = 0.004; // 4 ms
   private Notifier m_simNotifier = null;
   private double m_lastSimTime;
