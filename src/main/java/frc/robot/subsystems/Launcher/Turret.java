@@ -8,14 +8,12 @@ import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.Rotations;
 
-import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
-import com.ctre.phoenix6.signals.SensorDirectionValue;
 import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
@@ -41,8 +39,8 @@ class Turret extends SubsystemBase {
 
   private static final Angle minRotation = Rotations.of(-0.6);
   private static final Angle maxRotation = Rotations.of(0.6);
-  private static final Angle minAggresiveRotation = Rotations.of(-0.55);
-  private static final Angle maxAggresiveRotation = Rotations.of(0.55);
+  private static final Angle minAggresiveRotation = Rotations.of(-0.868);
+  private static final Angle maxAggresiveRotation = Rotations.of(0.573);
   private static final double gearRatio = 3.0 * (100.0 / 10.0);
   private static final double largeEncoderTeeth = 14.0;
   private static final double smallEncoderTeeth = 13.0;
@@ -72,12 +70,6 @@ class Turret extends SubsystemBase {
 
     turretMotor.getConfigurator().apply(config);
 
-    CANcoderConfiguration encoderConfig = new CANcoderConfiguration();
-    encoderConfig.MagnetSensor.withSensorDirection(SensorDirectionValue.Clockwise_Positive);
-
-    smallEncoder.getConfigurator().apply(encoderConfig);
-    largeEncoder.getConfigurator().apply(encoderConfig);
-
     EasyCRTConfig crtConfig = new EasyCRTConfig(
         smallEncoder.getAbsolutePosition(true).asSupplier(),
         largeEncoder.getAbsolutePosition(true).asSupplier());
@@ -89,8 +81,9 @@ class Turret extends SubsystemBase {
     crt = new EasyCRT(crtConfig);
     turretMotor.setPosition(0);
     SmartDashboard.putData("TargetTurret", targetDashboardAngle());
-    // crt.getAngleOptional().ifPresentOrElse((angle) -> turretMotor.setPosition(angle), () ->
-    // turretMotor.setPosition(Rotations.of(0.0)));
+    // crt.getAngleOptional()
+    //     .ifPresentOrElse(
+    //         (angle) -> turretMotor.setPosition(angle), () -> turretMotor.setPosition(Rotations.of(0.0)));
   }
 
   @Override
@@ -104,7 +97,7 @@ class Turret extends SubsystemBase {
 
   protected Command targetAngle(Supplier<Angle> targetAngle) {
     return run(() -> turretMotor.setControl(
-        positionRequest.withPosition(targetAngle.get()).withVelocity(0)));
+        positionRequest.withPosition(wrapTargetAngle(targetAngle.get())).withVelocity(0)));
   }
 
   protected Command targetAngleWithVelocity(Supplier<Angle> targetAngle, Supplier<AngularVelocity> targetVelocity) {

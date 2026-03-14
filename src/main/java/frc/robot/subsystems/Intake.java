@@ -129,8 +129,7 @@ public class Intake extends SubsystemBase {
         () -> {
           pivotController.setSetpoint(intakePosition, ControlType.kPosition);
           rollerMotor.setControl(voltageRequest.withOutput(8.0));
-          lowerRollerMotor.setControl(voltageRequest.withOutput(8
-          ));
+          lowerRollerMotor.setControl(voltageRequest.withOutput(8.0));
         },
         () -> {});
   }

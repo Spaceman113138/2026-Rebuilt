@@ -14,6 +14,8 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -55,7 +57,21 @@ public class Launcher extends SubsystemBase {
     var dist = getTurretPose().getTranslation().getDistance(ShotCalculator.blueHubPose);
     SmartDashboard.putNumber("distance to hub", dist);
     SmartDashboard.putNumber("avg dist hub", distanceFilter.calculate(dist));
-    bestShootingSolution = ShotCalculator.getPassingSolution(getTurretPose());
+    if (DriverStation.getAlliance().orElseGet(() -> Alliance.Blue) == Alliance.Blue) {
+      if (getTurretPose().getX() < 4.625594) {
+        bestShootingSolution =
+            ShotCalculator.getSOTMhubSolution(getTurretPose(), drivetrain.getFieldReletiveVelocity());
+      } else {
+        bestShootingSolution = ShotCalculator.getPassingSolution(getTurretPose());
+      }
+    } else {
+      if (getTurretPose().getX() > 16.540988 - 4.625594) {
+        bestShootingSolution =
+            ShotCalculator.getSOTMhubSolution(getTurretPose(), drivetrain.getFieldReletiveVelocity());
+      } else {
+        bestShootingSolution = ShotCalculator.getPassingSolution(getTurretPose());
+      }
+    }
   }
 
   private Command expose(Command internal) {

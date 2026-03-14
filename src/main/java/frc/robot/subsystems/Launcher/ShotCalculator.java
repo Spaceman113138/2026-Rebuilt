@@ -6,6 +6,7 @@ package frc.robot.subsystems.Launcher;
 
 import static edu.wpi.first.units.Units.Degrees;
 
+import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
@@ -15,12 +16,15 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import frc.robot.Util.ExtrapolatingDoubleTreeMap;
 
 /** Add your docs here. */
+@Logged
 public class ShotCalculator {
   private static final Translation2d redHubPose = new Translation2d(11.915394, 4.021328);
   public static final Translation2d blueHubPose = new Translation2d(4.625594, 4.021328);
   private static final Translation2d blueRightPass = new Translation2d(1.15, 1.177);
+  private static final Translation2d blueLeftPass = new Translation2d(1.15, 4.0 - 1.177);
   private static Translation2d targetPose = Translation2d.kZero;
-  private static final int NumItterations = 5;
+  private static final int NumItterations = 15;
+  private Pose2d poseArray = Pose2d.kZero;
 
   public record ShootingSolution(Angle turretAngle, Angle hoodAngle, double flywheelSpeed) {}
 
@@ -85,7 +89,7 @@ public class ShotCalculator {
 
   public static ShootingSolution getPassingSolution(Pose2d robotPose) {
     if (DriverStation.getAlliance().orElseGet(() -> Alliance.Blue) == Alliance.Blue) {
-      targetPose = blueRightPass;
+      targetPose = (robotPose.getY() < 2.0) ? blueRightPass : blueLeftPass;
     } else {
       targetPose = redHubPose;
     }
@@ -105,19 +109,27 @@ public class ShotCalculator {
       targetPose = redHubPose;
     }
 
-    Translation2d difference = targetPose.minus(robotPose.getTranslation());
-    double distance = difference.getNorm();
+    Pose2d launcherPosition = robotPose;
+    double launcherToTargetDistance = targetPose.getDistance(launcherPosition.getTranslation());
+
+    double timeOfFlight = tofMap.get(launcherToTargetDistance);
+    Translation2d lookaheadPose = targetPose;
+    double lookaheadLauncherToTargetDistance = launcherToTargetDistance;
 
     // Itterate shot projection to hopefully converge on correct shot
     for (int i = 0; i < NumItterations; i++) {
-      distance = robotPose.getTranslation().getDistance(targetPose);
-      double tof = tofMap.get(distance);
-      targetPose = targetPose.minus(
-          robotVelocity.times(tof)); // Shift goal by predicted change in flight due to robot velocity
+      timeOfFlight = tofMap.get(launcherToTargetDistance);
+      double offsetX = robotVelocity.getX() * timeOfFlight;
+      double offsetY = robotVelocity.getY() * timeOfFlight;
+      lookaheadPose = targetPose.plus(new Translation2d(offsetX, offsetY));
+      lookaheadLauncherToTargetDistance =
+          launcherPosition.getTranslation().getDistance(lookaheadPose);
     }
 
-    difference = targetPose.minus(robotPose.getTranslation());
+    targetPose = lookaheadPose;
+    var difference = targetPose.minus(robotPose.getTranslation());
     Angle turretAngle = difference.getAngle().minus(robotPose.getRotation()).getMeasure();
+    var distance = lookaheadLauncherToTargetDistance;
 
     // TODO: Check if shot is good (there are situations where it diverges or converges too slowly)
 
