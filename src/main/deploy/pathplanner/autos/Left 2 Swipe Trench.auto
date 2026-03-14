@@ -34,6 +34,18 @@
               }
             ]
           }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Left Trench Shot to 2nd Sweep"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Left 2nd Sweep to Trench Shot"
+          }
         }
       ]
     }

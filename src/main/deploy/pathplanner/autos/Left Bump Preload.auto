@@ -7,13 +7,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Left Start to Neutral"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "Left Neutral intake to trench shot"
+            "pathName": "L Bump Preload"
           }
         },
         {
@@ -23,7 +17,7 @@
               {
                 "type": "wait",
                 "data": {
-                  "waitTime": 4.0
+                  "waitTime": 1.5
                 }
               },
               {
@@ -39,6 +33,6 @@
     }
   },
   "resetOdom": true,
-  "folder": "Path Autos",
+  "folder": "Root Autos",
   "choreoAuto": false
 }

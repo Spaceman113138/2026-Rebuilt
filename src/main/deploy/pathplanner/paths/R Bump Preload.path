@@ -3,35 +3,42 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.6,
-        "y": 2.95
+        "x": 3.61,
+        "y": 2.1
       },
       "prevControl": null,
       "nextControl": {
-        "x": 3.8924298792049097,
-        "y": 3.254461493358866
+        "x": 3.360055792501291,
+        "y": 2.105281395444595
       },
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "Right Bump Start"
     },
     {
       "anchor": {
-        "x": 2.5018876404494375,
-        "y": 2.2923370786516863
+        "x": 2.1,
+        "y": 2.1
       },
       "prevControl": {
-        "x": 2.3267948270044068,
-        "y": 2.106866239655388
+        "x": 1.6142336004755955,
+        "y": 2.0973825163069
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "Right Preload End"
     }
   ],
   "rotationTargets": [],
   "constraintZones": [],
   "pointTowardsZones": [],
-  "eventMarkers": [],
+  "eventMarkers": [
+    {
+      "name": "runIntake",
+      "waypointRelativePos": 0.01,
+      "endWaypointRelativePos": null,
+      "command": null
+    }
+  ],
   "globalConstraints": {
     "maxVelocity": 3.0,
     "maxAcceleration": 3.0,
@@ -42,13 +49,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 0.0
+    "rotation": 180.0
   },
   "reversed": false,
   "folder": "Root Paths",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 0.0
+    "rotation": 180.0
   },
   "useDefaultConstraints": false
 }
