@@ -14,6 +14,8 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -24,7 +26,7 @@ import frc.robot.subsystems.Launcher.ShotCalculator.ShootingSolution;
 @Logged
 public class Launcher extends SubsystemBase {
 
-  private final Flywheel flywheel = new Flywheel();
+  public final Flywheel flywheel = new Flywheel();
   private final Hood hood = new Hood();
   private final Turret turret = new Turret();
   private CommandSwerveDrivetrain drivetrain;
@@ -45,6 +47,8 @@ public class Launcher extends SubsystemBase {
     SmartDashboard.putData("Hood", hood);
     SmartDashboard.putData("Turret", turret);
     SmartDashboard.putData("Launcher", this);
+
+    setDefaultCommand(runToZero());
   }
 
   @Override
@@ -53,8 +57,21 @@ public class Launcher extends SubsystemBase {
     var dist = getTurretPose().getTranslation().getDistance(ShotCalculator.blueHubPose);
     SmartDashboard.putNumber("distance to hub", dist);
     SmartDashboard.putNumber("avg dist hub", distanceFilter.calculate(dist));
-    bestShootingSolution =
-        ShotCalculator.getSOTMhubSolution(getTurretPose(), drivetrain.getFieldReletiveVelocity());
+    if (DriverStation.getAlliance().orElseGet(() -> Alliance.Blue) == Alliance.Blue) {
+      if (getTurretPose().getX() < 4.625594) {
+        bestShootingSolution =
+            ShotCalculator.getSOTMhubSolution(getTurretPose(), drivetrain.getFieldReletiveVelocity());
+      } else {
+        bestShootingSolution = ShotCalculator.getPassingSolution(getTurretPose());
+      }
+    } else {
+      if (getTurretPose().getX() > 16.540988 - 4.625594) {
+        bestShootingSolution =
+            ShotCalculator.getSOTMhubSolution(getTurretPose(), drivetrain.getFieldReletiveVelocity());
+      } else {
+        bestShootingSolution = ShotCalculator.getPassingSolution(getTurretPose());
+      }
+    }
   }
 
   private Command expose(Command internal) {
@@ -66,7 +83,7 @@ public class Launcher extends SubsystemBase {
   public Command runToZero() {
     return expose(flywheel.idleCommand()
             .alongWith(hood.targetAngle(() -> Rotation.of(0)))
-            .alongWith(turret.targetAngle(() -> Rotation.of(0))))
+            .alongWith(turret.targetAngle(() -> bestShootingSolution.turretAngle())))
         .withName("Run to zero");
   }
 

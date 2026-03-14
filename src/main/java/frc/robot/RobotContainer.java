@@ -60,6 +60,7 @@ public class RobotContainer {
     SmartDashboard.putData("Auto Mode", autoChooser);
     SmartDashboard.putNumber("Auto Delay", 0.0);
     SmartDashboard.putData("Auto Tag", tagger.getChosser());
+    SmartDashboard.putData("Intake", intake);
 
     configureBindings();
 
@@ -67,6 +68,7 @@ public class RobotContainer {
   }
 
   private void configureBindings() {
+    RobotModeTriggers.disabled().negate().onTrue(launcher.idle());
     // Note that X is defined as forward according to WPILib convention,
     // and Y is defined as to the left according to WPILib convention.
     drivetrain.setDefaultCommand(
@@ -74,8 +76,8 @@ public class RobotContainer {
         drivetrain.applyRequest(
             () -> drive.withVelocityX((Math.pow(-joystick.getLeftY(), 3))
                     * MaxSpeed) // Drive forward with negative Y (forward)
-                .withVelocityY(Math.pow(-joystick.getLeftX(), 3)
-                    * MaxSpeed) // Drive left with negative X (left)
+                .withVelocityY(Math.pow(-joystick.getLeftX(), 3) * MaxSpeed
+                    + drivetrain.getTrenchOffset()) // Drive left with negative X (left)
                 .withRotationalRate(-joystick.getRightX()
                     * MaxAngularRate) // Drive counterclockwise with negative X (left)
             ));
@@ -92,22 +94,22 @@ public class RobotContainer {
     // ));
 
     joystick.rightTrigger()
-        .whileTrue(intake.agitate()
-            .alongWith(launcher.targetHub())
+        .whileTrue(launcher.targetHub()
             .alongWith(Commands.waitUntil(launcher.launcherReady).andThen(indexer.runIndexer())))
-        .whileFalse(
-            indexer.idleCommand().alongWith(launcher.runToZero()).alongWith(intake.idleDeployed()));
+        .whileFalse(indexer.idleCommand().alongWith(intake.idleDeployed()));
     joystick.leftTrigger().whileTrue(intake.intakeCommand()).onFalse(intake.idleDeployed());
 
+    joystick.a().whileTrue(intake.agitate()).onFalse(intake.deployCommand());
+
     // Reset the field-centric heading on left bumper press.
-    joystick.a().onTrue(drivetrain.runOnce(drivetrain::seedFieldCentric));
+    // joystick.a().onTrue(drivetrain.runOnce(drivetrain::seedFieldCentric));
 
     // Run SysId routines when holding back/start and X/Y.
     // Note that each routine should be run exactly once in a single log.
-    // joystick.back().and(joystick.y()).whileTrue(drivetrain.sysIdDynamic(Direction.kForward));
-    // joystick.back().and(joystick.x()).whileTrue(drivetrain.sysIdDynamic(Direction.kReverse));
-    // joystick.start().and(joystick.y()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kForward));
-    // joystick.start().and(joystick.x()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kReverse));
+    // joystick.a().whileTrue(launcher.flywheel.sysIdDynamic(Direction.kForward));
+    // joystick.b().whileTrue(launcher.flywheel.sysIdDynamic(Direction.kReverse));
+    // joystick.x().whileTrue(launcher.flywheel.sysIdQuasistatic(Direction.kForward));
+    // joystick.y().whileTrue(launcher.flywheel.sysIdQuasistatic(Direction.kReverse));
 
     drivetrain.registerTelemetry(logger::telemeterize);
   }

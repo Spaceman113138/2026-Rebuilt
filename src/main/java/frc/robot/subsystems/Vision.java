@@ -15,6 +15,7 @@ import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotState;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
@@ -55,7 +56,21 @@ public class Vision extends SubsystemBase {
           new Rotation3d(0.0, Math.toRadians(15), Math.toRadians(180.0))),
       visionSim,
       useSim);
-  private Camera[] cameras = {leftCamera, backCamera};
+
+  private Camera frontCamera = new Camera(
+      "FrontCam",
+      new Transform3d(
+          -0.29502575, 0.088337, 0.468, new Rotation3d(0.0, Math.toRadians(-15), Math.toRadians(0.0))),
+      visionSim,
+      useSim);
+
+  private Camera rightCamera = new Camera(
+      "RightCam",
+      new Transform3d(-0.378, -0.238, 0.267, new Rotation3d(0.0, Math.toRadians(-15), Math.toRadians(-90.0))),
+      visionSim,
+      useSim);
+
+  private Camera[] cameras = {leftCamera, backCamera, frontCamera, rightCamera};
 
   /** Creates a new Vision. */
   public Vision(
@@ -99,8 +114,10 @@ public class Vision extends SubsystemBase {
     private double xyStd = 0.0;
     private double angStd = 0.0;
 
-    private static final double constrainedPnpXyStd = 0.4;
-    private static final double constrainedPnpAngStd = 0.14;
+    private static final double enabledXyStd = 0.6;
+    private static final double enabledAngStd = 0.5;
+    private static final double disabledXyStd = 0.4;
+    private static final double disabledAngStd = 0.14;
     public static final AprilTagFieldLayout kTagLayout =
         AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField);
 
@@ -156,9 +173,11 @@ public class Vision extends SubsystemBase {
 
         // Calculate the pose estimation weights for X/Y location. As
         // distance increases, the tag is trusted exponentially less.
-        xyStd = constrainedPnpXyStd * distance * distance;
+        xyStd = DriverStation.isEnabled() ? enabledXyStd : enabledXyStd;
+        angStd = DriverStation.isEnabled() ? enabledAngStd : disabledAngStd;
 
-        angStd = constrainedPnpAngStd * distance * distance;
+        xyStd = xyStd * distance * distance;
+        angStd = angStd * distance * distance;
 
         if (!RobotState.isDisabled()) {
           angStd = Double.MAX_VALUE;
