@@ -7,13 +7,13 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Left Start to Neutral"
+            "pathName": "Right Start to Neutral"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "Left Neutral intake to trench shot"
+            "pathName": "Right Neutral to Trench Shot"
           }
         },
         {

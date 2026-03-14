@@ -3,58 +3,56 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 4.475,
-        "y": 7.625
+        "x": 5.94,
+        "y": 5.0
       },
       "prevControl": null,
       "nextControl": {
-        "x": 5.273842696625556,
-        "y": 7.622235955052531
+        "x": 5.967155361050328,
+        "y": 5.570229759299781
       },
       "isLocked": false,
-      "linkedName": "Left Trench Start"
+      "linkedName": "Left 2 Swipe"
     },
     {
       "anchor": {
-        "x": 5.956640449434544,
-        "y": 7.625
+        "x": 6.0,
+        "y": 6.975
       },
       "prevControl": {
-        "x": 5.706640449434545,
-        "y": 7.625
+        "x": 6.038198190276727,
+        "y": 6.398690912203402
       },
       "nextControl": {
-        "x": 7.956640449434544,
-        "y": 7.625
+        "x": 5.950393873085338,
+        "y": 7.723424507658641
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 8.67,
-        "y": 4.75
+        "x": 3.5,
+        "y": 7.58
       },
       "prevControl": {
-        "x": 8.557898876404495,
-        "y": 6.584382022471909
+        "x": 5.085262935898285,
+        "y": 7.58
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "Neutral Zone Intake"
+      "linkedName": "Left Trench Shot"
     }
   ],
-  "rotationTargets": [],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 1.0,
+      "rotationDegrees": -90.0
+    }
+  ],
   "constraintZones": [],
   "pointTowardsZones": [],
-  "eventMarkers": [
-    {
-      "name": "runIntake",
-      "waypointRelativePos": 1.002481389578172,
-      "endWaypointRelativePos": null,
-      "command": null
-    }
-  ],
+  "eventMarkers": [],
   "globalConstraints": {
     "maxVelocity": 3.0,
     "maxAcceleration": 3.0,
@@ -68,10 +66,10 @@
     "rotation": -90.0
   },
   "reversed": false,
-  "folder": "Tag Paths",
+  "folder": "Left Auto Paths",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": -90.0
+    "rotation": -115.0
   },
   "useDefaultConstraints": true
 }
