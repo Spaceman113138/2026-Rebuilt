@@ -3,6 +3,8 @@ package frc.robot.LoggingFiles.logging.phoenix;
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.hardware.TalonFX;
 import edu.wpi.first.epilogue.CustomLoggerFor;
+import edu.wpi.first.epilogue.Epilogue;
+import edu.wpi.first.epilogue.Logged.Importance;
 import edu.wpi.first.epilogue.logging.ClassSpecificLogger;
 import edu.wpi.first.epilogue.logging.EpilogueBackend;
 import edu.wpi.first.util.struct.Struct;
@@ -23,8 +25,10 @@ public class TalonFXLogger extends ClassSpecificLogger<TalonFX> {
 
   @Override
   public void update(EpilogueBackend backend, TalonFX talonFX) {
-    backend.log("", talonFX, struct);
-    backend.log("ControlRequest", talonFX.getAppliedControl().getName());
+    if (Epilogue.shouldLog(Importance.DEBUG)) {
+      backend.log("", talonFX, struct);
+      backend.log("ControlRequest", talonFX.getAppliedControl().getName());
+    }
   }
 
   private static class TalonFXStruct implements Struct<TalonFX> {

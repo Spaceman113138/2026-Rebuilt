@@ -39,7 +39,7 @@ public class Intake extends SubsystemBase {
   private VoltageOut voltageRequest = new VoltageOut(0);
 
   private static final double storePosition = 0.2;
-  private static final double intakePosition = -0.13;
+  private static final double intakePosition = -0.15;
   private static final double deployPosition = 0.1;
 
   /** Creates a new Intake. */

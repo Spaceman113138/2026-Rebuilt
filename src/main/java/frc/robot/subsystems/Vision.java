@@ -4,6 +4,9 @@
 
 package frc.robot.subsystems;
 
+import static edu.wpi.first.units.Units.Inches;
+import static edu.wpi.first.units.Units.Meters;
+
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.epilogue.Logged;
@@ -44,7 +47,10 @@ public class Vision extends SubsystemBase {
   private Camera leftCamera = new Camera(
       "LowerLeft",
       new Transform3d(
-          -0.240829, 0.344977 + .5, 0.490599, new Rotation3d(0.0, Math.toRadians(15), Math.toRadians(90.0))),
+          -0.240829 - 0.181,
+          0.344977 + 0.5 - 0.381,
+          0.490599,
+          new Rotation3d(0.0, Math.toRadians(-15), Math.toRadians(90.0))),
       visionSim,
       useSim);
 
@@ -54,7 +60,7 @@ public class Vision extends SubsystemBase {
           -0.295707 - .131,
           0.288925 + 0.147,
           0.485,
-          new Rotation3d(0.0, Math.toRadians(15), Math.toRadians(180.0))),
+          new Rotation3d(0.0, Math.toRadians(-15), Math.toRadians(180.0))),
       visionSim,
       useSim);
 
@@ -120,7 +126,7 @@ public class Vision extends SubsystemBase {
     private double angStd = 0.0;
 
     private static final double enabledXyStd = 0.1;
-    private static final double enabledAngStd = 0.5;
+    private static final double enabledAngStd = 0.1;
     private static final double disabledXyStd = 0.4;
     private static final double disabledAngStd = 0.14;
     public static final AprilTagFieldLayout kTagLayout =
@@ -163,8 +169,10 @@ public class Vision extends SubsystemBase {
 
         var tempEstimatedPose = estimate.get().estimatedPose;
         // Check if estimated pose is within the field
-        if (tempEstimatedPose.getX() < 0
-            || tempEstimatedPose.getX() > kTagLayout.getFieldLength()
+        if (tempEstimatedPose.getX() < (0 + Inches.of(33.0 / 2.0).in(Meters))
+            || tempEstimatedPose.getX()
+                > (kTagLayout.getFieldLength()
+                    - Inches.of(33.0 / 2.0).in(Meters))
             || tempEstimatedPose.getY() < 0 && tempEstimatedPose.getY() > kTagLayout.getFieldWidth()) {
           estimatedPose = null;
           continue;

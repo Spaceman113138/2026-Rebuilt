@@ -7,6 +7,7 @@ package frc.robot;
 import com.ctre.phoenix6.HootAutoReplay;
 import edu.wpi.first.epilogue.Epilogue;
 import edu.wpi.first.epilogue.Logged;
+import edu.wpi.first.epilogue.Logged.Importance;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -25,6 +26,10 @@ public class Robot extends TimedRobot {
   public Robot() {
     DataLogManager.start();
     Epilogue.bind(this);
+    Epilogue.configure((config) -> {
+      // config.backend = new FileBackend(DataLogManager.getLog());
+      config.minimumImportance = Importance.DEBUG;
+    });
     m_robotContainer = new RobotContainer();
   }
 

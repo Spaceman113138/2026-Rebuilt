@@ -66,7 +66,7 @@ class Turret extends SubsystemBase {
         .withReverseSoftLimitEnable(true)
         .withForwardSoftLimitThreshold(maxRotation)
         .withReverseSoftLimitThreshold(minRotation);
-    config.Slot0.withKP(70.0).withKD(0.0).withKS(0.43).withKV(3.42);
+    config.Slot0.withKP(80.0).withKD(0.0).withKS(0.45).withKV(3.42);
 
     turretMotor.getConfigurator().apply(config);
 
@@ -97,7 +97,7 @@ class Turret extends SubsystemBase {
 
   protected Command targetAngle(Supplier<Angle> targetAngle) {
     return run(() -> turretMotor.setControl(
-        positionRequest.withPosition(wrapTargetAngle(targetAngle.get())).withVelocity(0)));
+        positionRequest.withPosition(targetAngle.get()).withVelocity(0)));
   }
 
   protected Command targetAngleWithVelocity(Supplier<Angle> targetAngle, Supplier<AngularVelocity> targetVelocity) {

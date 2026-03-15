@@ -11,13 +11,13 @@ import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.FollowPathCommand;
+import com.pathplanner.lib.events.EventTrigger;
 import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import frc.robot.generated.TunerConstants;
@@ -31,6 +31,8 @@ import frc.robot.subsystems.Vision;
 public class RobotContainer {
   private double MaxSpeed =
       1.0 * TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
+  private double shootingMaxSpeed = MaxSpeed * 0.25;
+  private double currentMax = MaxSpeed;
   private double MaxAngularRate =
       RotationsPerSecond.of(0.75).in(RadiansPerSecond); // 3/4 of a rotation per second max angular velocity
 
@@ -53,7 +55,7 @@ public class RobotContainer {
   public final Vision vision =
       new Vision(drivetrain::addVisionMeasurement, drivetrain::getEstimatedPose, drivetrain::getRotation3d);
 
-  public final AutoTagger tagger = new AutoTagger(drivetrain);
+  // public final AutoTagger tagger = new AutoTagger(drivetrain);
 
   private final SendableChooser<Command> autoChooser;
 
@@ -62,7 +64,7 @@ public class RobotContainer {
     autoChooser = AutoBuilder.buildAutoChooser("");
     SmartDashboard.putData("Auto Mode", autoChooser);
     SmartDashboard.putNumber("Auto Delay", 0.0);
-    SmartDashboard.putData("Auto Tag", tagger.getChosser());
+    // SmartDashboard.putData("Auto Tag", tagger.getChosser());
     SmartDashboard.putData("Intake", intake);
 
     configureBindings();
@@ -78,8 +80,8 @@ public class RobotContainer {
         // Drivetrain will execute this command periodically
         drivetrain.applyRequest(
             () -> drive.withVelocityX((Math.pow(-joystick.getLeftY(), 3))
-                    * MaxSpeed) // Drive forward with negative Y (forward)
-                .withVelocityY(Math.pow(-joystick.getLeftX(), 3) * MaxSpeed
+                    * currentMax) // Drive forward with negative Y (forward)
+                .withVelocityY(Math.pow(-joystick.getLeftX(), 3) * currentMax
                     + drivetrain.getTrenchOffset()) // Drive left with negative X (left)
                 .withRotationalRate(-joystick.getRightX()
                     * MaxAngularRate) // Drive counterclockwise with negative X (left)
@@ -98,8 +100,11 @@ public class RobotContainer {
 
     joystick.rightTrigger()
         .whileTrue(launcher.targetHub()
-            .alongWith(Commands.waitUntil(launcher.launcherReady).andThen(indexer.runIndexer())))
-        .whileFalse(indexer.idleCommand().alongWith(intake.idleDeployed()));
+            .alongWith(Commands.waitUntil(launcher.launcherReady).andThen(indexer.runIndexer()))
+            .alongWith(Commands.runOnce(() -> currentMax = shootingMaxSpeed)))
+        .whileFalse(indexer.idleCommand()
+            .alongWith(intake.idleDeployed())
+            .alongWith(Commands.runOnce(() -> currentMax = MaxSpeed)));
     joystick.leftTrigger().whileTrue(intake.intakeCommand()).onFalse(intake.idleDeployed());
 
     joystick.a().whileTrue(intake.agitate()).onFalse(intake.deployCommand());
@@ -128,6 +133,7 @@ public class RobotContainer {
                             .andThen(intake.agitate()))))
             .asProxy());
     NamedCommands.registerCommand("runIntake", intake.intakeCommand().asProxy());
+    new EventTrigger("runIntake").onTrue(intake.intakeCommand().asProxy());
   }
 
   public Command getAutonomousCommand() {
@@ -136,7 +142,6 @@ public class RobotContainer {
   }
 
   public Command getCombinedCommand() {
-    return new SequentialCommandGroup(
-        autoChooser.getSelected(), tagger.getChosser().getSelected());
+    return autoChooser.getSelected();
   }
 }
