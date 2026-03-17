@@ -45,7 +45,7 @@ public class TalonFXLogger extends ClassSpecificLogger<TalonFX> {
 
     @Override
     public int getSize() {
-      return kSizeDouble * 7;
+      return kSizeDouble * 8;
     }
 
     @Override
@@ -56,7 +56,8 @@ public class TalonFXLogger extends ClassSpecificLogger<TalonFX> {
           + "double position; "
           + "double statorCurrent; "
           + "double supplyCurrent; "
-          + "double velocity;");
+          + "double velocity;"
+          + "double closedLoopError;");
     }
 
     @Override
@@ -81,9 +82,17 @@ public class TalonFXLogger extends ClassSpecificLogger<TalonFX> {
       var statorCurrent = value.getStatorCurrent(false);
       var supplyCurrent = value.getSupplyCurrent(false);
       var velocity = value.getVelocity(false);
+      var closedLoopError = value.getClosedLoopError(false);
 
       BaseStatusSignal[] signals = {
-        closedLoopReference, deviceTemp, motorVoltage, position, statorCurrent, supplyCurrent, velocity,
+        closedLoopReference,
+        deviceTemp,
+        motorVoltage,
+        position,
+        statorCurrent,
+        supplyCurrent,
+        velocity,
+        closedLoopError
       };
 
       return bb -> {
@@ -95,6 +104,7 @@ public class TalonFXLogger extends ClassSpecificLogger<TalonFX> {
         bb.putDouble(statorCurrent.getValueAsDouble());
         bb.putDouble(supplyCurrent.getValueAsDouble());
         bb.putDouble(velocity.getValueAsDouble());
+        bb.putDouble(closedLoopError.getValueAsDouble());
       };
     };
   }

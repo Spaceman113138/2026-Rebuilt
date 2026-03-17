@@ -47,10 +47,7 @@ public class Vision extends SubsystemBase {
   private Camera leftCamera = new Camera(
       "LowerLeft",
       new Transform3d(
-          -0.240829 - 0.181,
-          0.344977 + 0.5 - 0.381,
-          0.490599,
-          new Rotation3d(0.0, Math.toRadians(-15), Math.toRadians(90.0))),
+          -0.229337, 0.331574, 0.490599, new Rotation3d(0.0, Math.toRadians(-15), Math.toRadians(90.0))),
       visionSim,
       useSim);
 
@@ -201,7 +198,7 @@ public class Vision extends SubsystemBase {
         angStd = angStd * distance * distance;
 
         if (!RobotState.isDisabled()) {
-          angStd = Double.MAX_VALUE;
+          angStd = 1.0;
         }
 
         if (Robot.isReal()) {

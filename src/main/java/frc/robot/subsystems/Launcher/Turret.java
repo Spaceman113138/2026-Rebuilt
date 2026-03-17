@@ -14,6 +14,7 @@ import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
+import com.ctre.phoenix6.signals.SensorDirectionValue;
 import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
@@ -38,7 +39,7 @@ class Turret extends SubsystemBase {
 
   private PositionVoltage positionRequest = new PositionVoltage(0).withSlot(0);
 
-  private static final double turretZeroOffset = -0.868;
+  private static final double turretZeroOffset = -0.910;
   private static final Angle minRotation = Rotations.of(turretZeroOffset);
   private static final Angle maxRotation = Rotations.of(0.573);
   private static final double gearRatio = 3.0 * (100.0 / 10.0);
@@ -73,8 +74,18 @@ class Turret extends SubsystemBase {
 
     CANcoderConfiguration encoderConfig = new CANcoderConfiguration();
     encoderConfig.MagnetSensor.withAbsoluteSensorDiscontinuityPoint(1.0);
-    smallEncoder.getConfigurator().apply(encoderConfig);
-    largeEncoder.getConfigurator().apply(encoderConfig);
+    smallEncoder
+        .getConfigurator()
+        .apply(encoderConfig
+            .MagnetSensor
+            .withSensorDirection(SensorDirectionValue.CounterClockwise_Positive)
+            .withMagnetOffset(-0.789794921875));
+    largeEncoder
+        .getConfigurator()
+        .apply(encoderConfig
+            .MagnetSensor
+            .withSensorDirection(SensorDirectionValue.Clockwise_Positive)
+            .withMagnetOffset(-0.090087890625));
 
     if (Robot.isSimulation()) {
       smallEncoder.setPosition(Math.abs(turretZeroOffset) * (turretTeeth / smallEncoderTeeth) % 1.0);
@@ -82,6 +93,7 @@ class Turret extends SubsystemBase {
     }
 
     turretMotor.setPosition(calculateCRTangle());
+    // turretMotor.setPosition(0.0);
     SmartDashboard.putData("TargetTurret", targetDashboardAngle());
   }
 
@@ -123,7 +135,7 @@ class Turret extends SubsystemBase {
     for (int i = 0; i < smallEncoderTeeth; i++) {
       double value = (i + e2Angle) * (largeEncoderTeeth / turretTeeth);
       for (double e1Value : possibleE1Angles) {
-        if (Math.abs(value - e1Value) <= 0.005) {
+        if (Math.abs(value - e1Value) <= 0.003) {
           zeroedAlert.set(false);
           return Rotations.of(value + turretZeroOffset);
         }

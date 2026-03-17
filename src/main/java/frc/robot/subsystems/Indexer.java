@@ -53,8 +53,8 @@ public class Indexer extends SubsystemBase {
   public Command runIndexer() {
     return startRun(
         () -> {
-          ovalMotor.setVoltage(8.0);
-          kickerMotor.setVoltage(8.0);
+          ovalMotor.setVoltage(9.0);
+          kickerMotor.setVoltage(9.0);
         },
         () -> {});
   }

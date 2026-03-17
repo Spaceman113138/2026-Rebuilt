@@ -20,8 +20,8 @@ import frc.robot.Util.ExtrapolatingDoubleTreeMap;
 public class ShotCalculator {
   private static final Translation2d redHubPose = new Translation2d(11.915394, 4.021328);
   public static final Translation2d blueHubPose = new Translation2d(4.625594, 4.021328);
-  private static final Translation2d blueRightPass = new Translation2d(1.15, 1.0);
-  private static final Translation2d blueLeftPass = new Translation2d(1.15, 4.0 - 1.177);
+  private static final Translation2d blueRightPass = new Translation2d(0.5, 1.0);
+  private static final Translation2d blueLeftPass = new Translation2d(0.5, 9.0 - 1.177);
   private static Translation2d targetPose = Translation2d.kZero;
   private static final int NumItterations = 20;
 
@@ -30,33 +30,38 @@ public class ShotCalculator {
   private static ExtrapolatingDoubleTreeMap tofMap = new ExtrapolatingDoubleTreeMap();
 
   static {
-    tofMap.put(5.759, 5.875 * .25);
-    tofMap.put(4.561, 6.225 * .25);
-    tofMap.put(3.786, 5.335 * .25);
-    tofMap.put(2.93, 5.0 * .25);
-    tofMap.put(2.578, 5.063 * .25);
+    tofMap.put(2.17, 1.26);
+    tofMap.put(2.51, 1.31);
+    tofMap.put(3.049, 1.32);
+    tofMap.put(3.515, 1.33);
+    tofMap.put(4.011, 1.35);
+    tofMap.put(5.4, 1.38);
+    tofMap.put(5.0, 1.37);
   }
 
   private static InterpolatingDoubleTreeMap hoodMap = new InterpolatingDoubleTreeMap();
 
   static {
-    hoodMap.put(5.759, 33.0);
-    hoodMap.put(4.561, 30.0);
-    hoodMap.put(3.786, 30.0);
-    hoodMap.put(2.93, 28.0);
-    hoodMap.put(2.578, 26.0);
-    hoodMap.put(1.7, 23.0);
+    hoodMap.put(2.17, 25.0);
+    hoodMap.put(2.51, 27.0);
+    hoodMap.put(3.049, 29.0);
+    hoodMap.put(3.515, 30.0);
+    hoodMap.put(4.011, 31.0);
+    hoodMap.put(5.4, 37.0);
+    hoodMap.put(5.0, 35.0);
   }
 
   private static InterpolatingDoubleTreeMap flywheelMap = new InterpolatingDoubleTreeMap();
 
   static {
-    flywheelMap.put(5.759, 94.0);
-    flywheelMap.put(4.561, 90.0);
-    flywheelMap.put(3.786, 81.0);
-    flywheelMap.put(2.93, 75.0);
-    flywheelMap.put(2.578, 76.0);
-    flywheelMap.put(1.7, 75.0);
+    flywheelMap.put(2.17, 73.0);
+    flywheelMap.put(2.51, 73.0);
+    flywheelMap.put(3.049, 74.0);
+    flywheelMap.put(3.515, 77.0);
+    flywheelMap.put(
+      4.011, 80.0);
+    flywheelMap.put(5.4, 87.0);
+    flywheelMap.put(5.0, 85.0);
   }
 
   public static double getFlywheelSpeed(double distance) {
