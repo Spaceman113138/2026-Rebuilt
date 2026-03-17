@@ -116,19 +116,20 @@ public class Flywheel extends SubsystemBase {
   }
 
   public void simulationPeriodic() {
+    return;
     // get the motor voltage of the TalonFX
-    var motorVoltage = simState.getMotorVoltageMeasure();
+    // var motorVoltage = simState.getMotorVoltageMeasure();
 
-    // use the motor voltage to calculate new position and velocity
-    // using WPILib's DCMotorSim class for physics simulation
-    dcSim.setInputVoltage(motorVoltage.in(Volts));
-    dcSim.update(0.020); // assume 20 ms loop time
+    // // use the motor voltage to calculate new position and velocity
+    // // using WPILib's DCMotorSim class for physics simulation
+    // dcSim.setInputVoltage(motorVoltage.in(Volts));
+    // dcSim.update(0.020); // assume 20 ms loop time
 
-    // apply the new rotor position and velocity to the TalonFX;
-    // note that this is rotor position/velocity (before gear ratio), but
-    // DCMotorSim returns mechanism position/velocity (after gear ratio)
-    simState.setRotorVelocity(dcSim.getAngularVelocity().times(motorToFlywheelRatio));
-    simState.setRawRotorPosition(dcSim.getAngularPosition().times(motorToFlywheelRatio));
+    // // apply the new rotor position and velocity to the TalonFX;
+    // // note that this is rotor position/velocity (before gear ratio), but
+    // // DCMotorSim returns mechanism position/velocity (after gear ratio)
+    // simState.setRotorVelocity(dcSim.getAngularVelocity().times(motorToFlywheelRatio));
+    // simState.setRawRotorPosition(dcSim.getAngularPosition().times(motorToFlywheelRatio));
   }
 
   public boolean atTarget() {

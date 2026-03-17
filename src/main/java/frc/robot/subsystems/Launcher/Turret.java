@@ -5,9 +5,9 @@
 package frc.robot.subsystems.Launcher;
 
 import static edu.wpi.first.units.Units.Degrees;
-import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.Rotations;
 
+import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.hardware.CANcoder;
@@ -19,14 +19,15 @@ import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.wpilibj.Alert;
+import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.robot.Robot;
 import frc.robot.generated.TunerConstants;
 import java.util.function.Supplier;
-import yams.units.EasyCRT;
-import yams.units.EasyCRTConfig;
 
 @Logged
 class Turret extends SubsystemBase {
@@ -37,15 +38,15 @@ class Turret extends SubsystemBase {
 
   private PositionVoltage positionRequest = new PositionVoltage(0).withSlot(0);
 
-  private static final Angle minRotation = Rotations.of(-0.6);
-  private static final Angle maxRotation = Rotations.of(0.6);
-  private static final Angle minAggresiveRotation = Rotations.of(-0.868);
-  private static final Angle maxAggresiveRotation = Rotations.of(0.573);
+  private static final double turretZeroOffset = -0.868;
+  private static final Angle minRotation = Rotations.of(turretZeroOffset);
+  private static final Angle maxRotation = Rotations.of(0.573);
   private static final double gearRatio = 3.0 * (100.0 / 10.0);
   private static final double largeEncoderTeeth = 14.0;
   private static final double smallEncoderTeeth = 13.0;
+  private static final double turretTeeth = 100.0;
 
-  private EasyCRT crt;
+  private Alert zeroedAlert = new Alert("Turret Failed To Zero", AlertType.kError);
 
   private NetworkTableEntry turretEntry = NetworkTableInstance.getDefault().getEntry("/tuning/turretTarget");
 
@@ -70,20 +71,18 @@ class Turret extends SubsystemBase {
 
     turretMotor.getConfigurator().apply(config);
 
-    EasyCRTConfig crtConfig = new EasyCRTConfig(
-        smallEncoder.getAbsolutePosition(true).asSupplier(),
-        largeEncoder.getAbsolutePosition(true).asSupplier());
-    crtConfig
-        .withEncoderRatios(100.0 / smallEncoderTeeth, 100.0 / largeEncoderTeeth)
-        .withMechanismRange(minRotation, maxRotation)
-        .withMatchTolerance(Rotations.of(0.06));
+    CANcoderConfiguration encoderConfig = new CANcoderConfiguration();
+    encoderConfig.MagnetSensor.withAbsoluteSensorDiscontinuityPoint(1.0);
+    smallEncoder.getConfigurator().apply(encoderConfig);
+    largeEncoder.getConfigurator().apply(encoderConfig);
 
-    crt = new EasyCRT(crtConfig);
-    turretMotor.setPosition(0);
+    if (Robot.isSimulation()) {
+      smallEncoder.setPosition(Math.abs(turretZeroOffset) * (turretTeeth / smallEncoderTeeth) % 1.0);
+      largeEncoder.setPosition(Math.abs(turretZeroOffset) * (turretTeeth / largeEncoderTeeth) % 1.0);
+    }
+
+    turretMotor.setPosition(calculateCRTangle());
     SmartDashboard.putData("TargetTurret", targetDashboardAngle());
-    // crt.getAngleOptional()
-    //     .ifPresentOrElse(
-    //         (angle) -> turretMotor.setPosition(angle), () -> turretMotor.setPosition(Rotations.of(0.0)));
   }
 
   @Override
@@ -97,30 +96,66 @@ class Turret extends SubsystemBase {
 
   protected Command targetAngle(Supplier<Angle> targetAngle) {
     return run(() -> turretMotor.setControl(
-        positionRequest.withPosition(targetAngle.get()).withVelocity(0)));
+        positionRequest.withPosition(wrapTargetAngle(targetAngle.get())).withVelocity(0)));
   }
 
   protected Command targetAngleWithVelocity(Supplier<Angle> targetAngle, Supplier<AngularVelocity> targetVelocity) {
     return run(() -> turretMotor.setControl(
-        positionRequest.withPosition(targetAngle.get()).withVelocity(targetVelocity.get())));
+        positionRequest.withPosition(wrapTargetAngle(targetAngle.get())).withVelocity(targetVelocity.get())));
   }
 
   public boolean atTarget() {
     return positionRequest
         .getPositionMeasure()
-        .isNear(turretMotor.getPosition().getValue(), Degrees.of(5.0));
+        .isNear(turretMotor.getPosition().getValue(), Degrees.of(2.0));
+  }
+
+  private Angle calculateCRTangle() {
+    double e1Angle = smallEncoder.getAbsolutePosition(true).getValueAsDouble();
+    double e2Angle = largeEncoder.getAbsolutePosition(true).getValueAsDouble();
+
+    double[] possibleE1Angles = new double[(int) (largeEncoderTeeth)];
+    for (int i = 0; i < largeEncoderTeeth; i++) {
+      double value = (i + e1Angle) * (smallEncoderTeeth / turretTeeth);
+      possibleE1Angles[i] = value;
+    }
+
+    for (int i = 0; i < smallEncoderTeeth; i++) {
+      double value = (i + e2Angle) * (largeEncoderTeeth / turretTeeth);
+      for (double e1Value : possibleE1Angles) {
+        if (Math.abs(value - e1Value) <= 0.005) {
+          zeroedAlert.set(false);
+          return Rotations.of(value + turretZeroOffset);
+        }
+      }
+    }
+
+    zeroedAlert.set(true);
+    return Rotations.of(0);
   }
 
   // Assume target angle is within a single rotation [-0.5 , 0.5]
   private Angle wrapTargetAngle(Angle targetAngle) {
-    double target = targetAngle.in(Radians);
-    double curentAngle = getRotation().in(Radians);
+    double target = targetAngle.in(Rotations);
+    double min = minRotation.in(Rotations);
+    double max = maxRotation.in(Rotations);
+    double largerTarget = target + 1.0;
+    double smallerTarget = target - 1.0;
+    double current = getRotation().in(Rotations);
 
-    double tau = (2 * Math.PI);
-
-    var deltaAngle = target - curentAngle;
-    deltaAngle = deltaAngle - tau * Math.floor((deltaAngle + Math.PI) / tau);
-    return Radians.of(deltaAngle + curentAngle);
+    if (target < 0.0) {
+      if (largerTarget < max && Math.abs(largerTarget - current) < Math.abs(target - current)) {
+        return Rotations.of(largerTarget);
+      } else {
+        return Rotations.of(target);
+      }
+    } else {
+      if (smallerTarget > min && Math.abs(smallerTarget - current) < Math.abs(target - current)) {
+        return Rotations.of(smallerTarget);
+      } else {
+        return Rotations.of(target);
+      }
+    }
   }
 
   private Command targetDashboardAngle() {

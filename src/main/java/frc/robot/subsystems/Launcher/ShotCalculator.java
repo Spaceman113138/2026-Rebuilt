@@ -20,11 +20,10 @@ import frc.robot.Util.ExtrapolatingDoubleTreeMap;
 public class ShotCalculator {
   private static final Translation2d redHubPose = new Translation2d(11.915394, 4.021328);
   public static final Translation2d blueHubPose = new Translation2d(4.625594, 4.021328);
-  private static final Translation2d blueRightPass = new Translation2d(1.15, 1.177);
+  private static final Translation2d blueRightPass = new Translation2d(1.15, 1.0);
   private static final Translation2d blueLeftPass = new Translation2d(1.15, 4.0 - 1.177);
   private static Translation2d targetPose = Translation2d.kZero;
-  private static final int NumItterations = 15;
-  private Pose2d poseArray = Pose2d.kZero;
+  private static final int NumItterations = 20;
 
   public record ShootingSolution(Angle turretAngle, Angle hoodAngle, double flywheelSpeed) {}
 
@@ -72,45 +71,47 @@ public class ShotCalculator {
     return tofMap.get(distance);
   }
 
-  public static ShootingSolution getStaticHubSolution(Pose2d robotPose) {
+  public static ShootingSolution getStaticHubSolution(Pose2d turretPose) {
     if (DriverStation.getAlliance().orElseGet(() -> Alliance.Blue) == Alliance.Blue) {
       targetPose = blueHubPose;
     } else {
       targetPose = redHubPose;
     }
 
-    Translation2d difference = targetPose.minus(robotPose.getTranslation());
+    Translation2d difference = targetPose.minus(turretPose.getTranslation());
     double distance = difference.getNorm();
 
-    Angle turretAngle = difference.getAngle().minus(robotPose.getRotation()).getMeasure();
+    Angle turretAngle =
+        difference.getAngle().minus(turretPose.getRotation()).getMeasure();
 
     return new ShootingSolution(turretAngle, Degrees.of(hoodMap.get(distance)), flywheelMap.get(distance));
   }
 
-  public static ShootingSolution getPassingSolution(Pose2d robotPose) {
+  public static ShootingSolution getPassingSolution(Pose2d turretPose) {
     if (DriverStation.getAlliance().orElseGet(() -> Alliance.Blue) == Alliance.Blue) {
-      targetPose = (robotPose.getY() < 2.0) ? blueRightPass : blueLeftPass;
+      targetPose = (turretPose.getY() < 2.0) ? blueRightPass : blueLeftPass;
     } else {
       targetPose = redHubPose;
     }
 
-    Translation2d difference = targetPose.minus(robotPose.getTranslation());
+    Translation2d difference = targetPose.minus(turretPose.getTranslation());
     double distance = difference.getNorm();
 
-    Angle turretAngle = difference.getAngle().minus(robotPose.getRotation()).getMeasure();
+    Angle turretAngle =
+        difference.getAngle().minus(turretPose.getRotation()).getMeasure();
 
     return new ShootingSolution(turretAngle, Degrees.of(hoodMap.get(distance)), flywheelMap.get(distance) - 10.0);
   }
 
-  public static ShootingSolution getSOTMhubSolution(Pose2d robotPose, Translation2d robotVelocity) {
+  public static ShootingSolution getSOTMhubSolution(Pose2d turretPose, Translation2d robotVelocity) {
     if (DriverStation.getAlliance().orElseGet(() -> Alliance.Blue) == Alliance.Blue) {
       targetPose = blueHubPose;
     } else {
       targetPose = redHubPose;
     }
 
-    Pose2d launcherPosition = robotPose;
-    double launcherToTargetDistance = targetPose.getDistance(launcherPosition.getTranslation());
+    Translation2d launcherPosition = turretPose.getTranslation();
+    double launcherToTargetDistance = targetPose.getDistance(launcherPosition);
 
     double timeOfFlight = tofMap.get(launcherToTargetDistance);
     Translation2d lookaheadPose = targetPose;
@@ -122,13 +123,13 @@ public class ShotCalculator {
       double offsetX = robotVelocity.getX() * timeOfFlight;
       double offsetY = robotVelocity.getY() * timeOfFlight;
       lookaheadPose = targetPose.plus(new Translation2d(offsetX, offsetY));
-      lookaheadLauncherToTargetDistance =
-          launcherPosition.getTranslation().getDistance(lookaheadPose);
+      lookaheadLauncherToTargetDistance = launcherPosition.getDistance(lookaheadPose);
     }
 
     targetPose = lookaheadPose;
-    var difference = targetPose.minus(robotPose.getTranslation());
-    Angle turretAngle = difference.getAngle().minus(robotPose.getRotation()).getMeasure();
+    var difference = targetPose.minus(turretPose.getTranslation());
+    Angle turretAngle =
+        difference.getAngle().minus(turretPose.getRotation()).getMeasure();
     var distance = lookaheadLauncherToTargetDistance;
 
     // TODO: Check if shot is good (there are situations where it diverges or converges too slowly)

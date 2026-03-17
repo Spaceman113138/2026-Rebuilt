@@ -33,16 +33,6 @@ public class EstimatedRobotPoseLogger extends ClassSpecificLogger<EstimatedRobot
     if (Epilogue.shouldLog(Importance.DEBUG)) {
       for (int i = 0; i < estimatedPose.targetsUsed.size(); i++) {
         backend.log(Integer.toString(i), estimatedPose.targetsUsed.get(i), PhotonTrackedTarget.proto);
-        // var target = estimatedPose.targetsUsed.get(i);
-        // backend.log(
-        //     "Targets/" + i + "/Cam to Target", target.bestCameraToTarget, Transform3d.struct);
-        // backend.log("Targets/" + i + "/Fiducial Id", target.fiducialId);
-        // backend.log("Targets/" + i + "/area", target.area);
-        // backend.log("Targets/" + i + "/yaw", target.yaw);
-        // backend.log("Targets/" + i + "/pitch", target.pitch);
-        // backend.log("Targets/" + i + "/ambiguity", target.poseAmbiguity);
-        // backend.log("Targets/" + i + "/Object Id", target.objDetectId);
-        // backend.log("Targets/" + i + "/Object Confidence", target.objDetectConf);
       }
     }
   }

@@ -8,6 +8,7 @@ import static edu.wpi.first.units.Units.Degree;
 import static edu.wpi.first.units.Units.Degrees;
 
 import com.ctre.phoenix6.StatusSignal;
+import com.ctre.phoenix6.StatusSignalCollection;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.NeutralOut;
 import com.ctre.phoenix6.controls.PositionVoltage;
@@ -47,6 +48,9 @@ class Hood extends SubsystemBase {
 
   private StatusSignal<AngularVelocity> velocitySignal = hoodMotor.getVelocity();
   private StatusSignal<Current> statorCurrentSignal = hoodMotor.getStatorCurrent();
+  private StatusSignal<Angle> angleSignal = hoodMotor.getPosition();
+  private StatusSignalCollection signalList =
+      new StatusSignalCollection(velocitySignal, statorCurrentSignal, angleSignal);
 
   private static final double motorToHoodRatio = (46.0 / 16.0) * (162.0 / 20.0); // 2.875 * 8.1 = 23.2875
   private static final Angle hoodMin = Degree.of(15.0);
@@ -76,10 +80,14 @@ class Hood extends SubsystemBase {
         .withReverseSoftLimitEnable(true)
         .withForwardSoftLimitThreshold(hoodMax)
         .withReverseSoftLimitThreshold(hoodMin);
-    hoodConfig.Slot0.withKP(100.0).withKD(0.0).withKS(0.38).withKV(0.0).withKG(0.0);
+    hoodConfig.Slot0.withKP(110.0).withKD(0.0).withKS(0.38).withKV(0.0).withKG(0.0);
 
     hoodMotor.getConfigurator().apply(hoodConfig);
     hoodMotor.setPosition(Degrees.of(15));
+
+    signalList.setUpdateFrequencyForAll(50);
+    hoodMotor.optimizeBusUtilization();
+
     SmartDashboard.putData("HoodCommand", targetDashboardAngle());
     SmartDashboard.putData("ZeroHoodCommand", zeroHood());
 
@@ -89,6 +97,7 @@ class Hood extends SubsystemBase {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
+    signalList.refreshAll();
   }
 
   private boolean isStalled() {
@@ -96,9 +105,7 @@ class Hood extends SubsystemBase {
   }
 
   public boolean atTarget() {
-    return positionRequest
-        .getPositionMeasure()
-        .isNear(hoodMotor.getPosition().getValue(), Degree.of(1.0));
+    return positionRequest.getPositionMeasure().isNear(angleSignal.getValue(), Degree.of(1.0));
   }
 
   protected Command zeroHood() {
