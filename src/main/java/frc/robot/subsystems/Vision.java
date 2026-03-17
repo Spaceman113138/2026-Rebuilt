@@ -38,7 +38,7 @@ public class Vision extends SubsystemBase {
   VisionSystemSim visionSim = new VisionSystemSim("main");
   Supplier<Pose2d> poseSupplier;
   Supplier<Rotation3d> pigeonRotationSupplier;
-  private boolean useSim = true;
+  private boolean useSim = false;
 
   private EstimateConsumer estimateConsumer;
 
@@ -98,6 +98,9 @@ public class Vision extends SubsystemBase {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
+    if (Robot.isSimulation() && !useSim) {
+      return;
+    }
     if (!SmartDashboard.getBoolean("UseCameras", false)) {
       return;
     }
@@ -108,7 +111,9 @@ public class Vision extends SubsystemBase {
 
   @Override
   public void simulationPeriodic() {
-    visionSim.update(poseSupplier.get());
+    if (useSim) {
+      visionSim.update(poseSupplier.get());
+    }
   }
 
   @FunctionalInterface
@@ -122,6 +127,7 @@ public class Vision extends SubsystemBase {
     private PhotonCamera camera;
     private PhotonPoseEstimator poseEstimator;
     private EstimatedRobotPose estimatedPose;
+    private boolean usedPose = false;
     private double xyStd = 0.0;
     private double angStd = 0.0;
 
@@ -156,15 +162,18 @@ public class Vision extends SubsystemBase {
     }
 
     public void update(EstimateConsumer visionConsumer) {
+      usedPose = false;
       for (PhotonPipelineResult result : camera.getAllUnreadResults()) {
         var estimate = poseEstimator.estimateCoprocMultiTagPose(result);
         if (estimate.isEmpty()) {
           estimate = poseEstimator.estimateLowestAmbiguityPose(result);
-        }
-
-        if (estimate.isEmpty() || estimate.get().targetsUsed.isEmpty()) {
-          estimatedPose = null;
-          continue;
+          if (estimate.isEmpty()) {
+            continue;
+          }
+          // If using lowestAmbiguity then camera can only see one tag so index 0 is the tag used
+          if (estimate.get().targetsUsed.get(0).poseAmbiguity > 0.25) {
+            continue;
+          }
         }
 
         var tempEstimatedPose = estimate.get().estimatedPose;
@@ -174,7 +183,6 @@ public class Vision extends SubsystemBase {
                 > (kTagLayout.getFieldLength()
                     - Inches.of(33.0 / 2.0).in(Meters))
             || tempEstimatedPose.getY() < 0 && tempEstimatedPose.getY() > kTagLayout.getFieldWidth()) {
-          estimatedPose = null;
           continue;
         }
 
@@ -197,6 +205,7 @@ public class Vision extends SubsystemBase {
         }
 
         if (Robot.isReal()) {
+          usedPose = true;
           visionConsumer.accept(
               estimatedPose.estimatedPose.toPose2d(),
               estimatedPose.timestampSeconds,

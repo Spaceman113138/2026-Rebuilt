@@ -11,8 +11,6 @@ import static edu.wpi.first.units.Units.Rotation;
 import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
@@ -105,7 +103,8 @@ public class Launcher extends SubsystemBase {
 
   public Pose2d getTurretPose() {
     var curentPose = drivetrain.getEstimatedPose();
-    return curentPose.transformBy(
-        new Transform2d(turretOffset.rotateBy(curentPose.getRotation()), Rotation2d.kZero));
+    return new Pose2d(
+        curentPose.getTranslation().plus(turretOffset.rotateBy(curentPose.getRotation())),
+        curentPose.getRotation());
   }
 }
