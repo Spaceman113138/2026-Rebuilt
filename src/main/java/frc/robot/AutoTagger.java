@@ -22,18 +22,20 @@ public class AutoTagger {
   private boolean depotAvalible = true;
   private boolean humanAvalible = true;
   private Alert depotAlert = new Alert("Depot Path NOT Found", AlertType.kWarning);
+  private Command shootCommand;
 
   private SendableChooser<Command> tagChooser = new SendableChooser<>();
 
-  PathConstraints constraints =
+  public PathConstraints constraints =
       new PathConstraints(3.0, 4.0, Units.degreesToRadians(540), Units.degreesToRadians(720));
 
-  public AutoTagger(CommandSwerveDrivetrain drivetrain) {
+  public AutoTagger(CommandSwerveDrivetrain drivetrain, Command shoot) {
+    shootCommand = shoot;
     var idleRequest = new SwerveRequest.Idle();
     tagChooser.setDefaultOption("None", drivetrain.applyRequest(() -> idleRequest));
 
     try {
-      depotPath = PathPlannerPath.fromPathFile("depot");
+      depotPath = PathPlannerPath.fromPathFile("Depot");
       tagChooser.addOption("Depot", getDepot());
     } catch (Exception e) {
       depotAvalible = false;
@@ -46,6 +48,7 @@ public class AutoTagger {
       depotAvalible = false;
       depotAlert.set(true);
     }
+    tagChooser.addOption("ShootToend", shoot());
   }
 
   public SendableChooser<Command> getChosser() {
@@ -53,10 +56,18 @@ public class AutoTagger {
   }
 
   private Command getDepot() {
-    return AutoBuilder.pathfindThenFollowPath(depotPath, constraints);
+    return AutoBuilder.pathfindThenFollowPath(depotPath, constraints)
+        .andThen(shootCommand.asProxy())
+        .withName("DepotTag");
   }
 
   private Command getHumanPlayer() {
-    return AutoBuilder.pathfindThenFollowPath(humanPath, constraints);
+    return AutoBuilder.pathfindThenFollowPath(humanPath, constraints)
+        .andThen(shootCommand.asProxy())
+        .withName("HumanTag");
+  }
+
+  private Command shoot() {
+    return shootCommand.asProxy().withName("ShootToEnd");
   }
 }

@@ -25,6 +25,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.generated.TunerConstants;
+import java.util.function.BooleanSupplier;
 
 @Logged
 public class Intake extends SubsystemBase {
@@ -69,8 +70,8 @@ public class Intake extends SubsystemBase {
         .CurrentLimits
         .withSupplyCurrentLimitEnable(true)
         .withStatorCurrentLimitEnable(true)
-        .withSupplyCurrentLimit(40)
-        .withStatorCurrentLimit(100);
+        .withSupplyCurrentLimit(25)
+        .withStatorCurrentLimit(70);
 
     rollerMotor.getConfigurator().apply(rollerConfig);
     lowerRollerMotor
@@ -129,8 +130,22 @@ public class Intake extends SubsystemBase {
         () -> {
           pivotController.setSetpoint(intakePosition, ControlType.kPosition);
           rollerMotor.setControl(voltageRequest.withOutput(8.0));
-          lowerRollerMotor.setControl(voltageRequest.withOutput(8.0));
+          lowerRollerMotor.setControl(voltageRequest.withOutput(9.0));
         },
         () -> {});
+  }
+
+  public Command reverseIntake() {
+    return startRun(
+        () -> {
+          pivotController.setSetpoint(intakePosition, ControlType.kPosition);
+          rollerMotor.setControl(voltageRequest.withOutput(-8.0));
+          lowerRollerMotor.setControl(voltageRequest.withOutput(-9.0));
+        },
+        () -> {});
+  }
+
+  public Command reverseRunIntake(BooleanSupplier condition) {
+    return reverseIntake().until(condition).andThen(intakeCommand());
   }
 }

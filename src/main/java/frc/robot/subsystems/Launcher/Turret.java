@@ -22,7 +22,6 @@ import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
@@ -50,11 +49,14 @@ class Turret extends SubsystemBase {
   private Alert zeroedAlert = new Alert("Turret Failed To Zero", AlertType.kError);
 
   private NetworkTableEntry turretEntry = NetworkTableInstance.getDefault().getEntry("/tuning/turretTarget");
+  private NetworkTableEntry turretOffset = NetworkTableInstance.getDefault().getEntry("/adjustments/turretOffset");
 
   /** Creates a new Turret. */
   public Turret() {
     turretEntry.getTopic().genericPublish("double");
     turretEntry.getTopic().setPersistent(true);
+    turretOffset.getTopic().genericPublish("double");
+    turretOffset.getTopic().setPersistent(true);
 
     TalonFXConfiguration config = new TalonFXConfiguration();
     config.MotorOutput.withInverted(InvertedValue.Clockwise_Positive).withNeutralMode(NeutralModeValue.Coast);
@@ -94,7 +96,7 @@ class Turret extends SubsystemBase {
 
     turretMotor.setPosition(calculateCRTangle());
     // turretMotor.setPosition(0.0);
-    SmartDashboard.putData("TargetTurret", targetDashboardAngle());
+    // SmartDashboard.putData("TargetTurret", targetDashboardAngle());
   }
 
   @Override
@@ -107,13 +109,15 @@ class Turret extends SubsystemBase {
   }
 
   protected Command targetAngle(Supplier<Angle> targetAngle) {
-    return run(() -> turretMotor.setControl(
-        positionRequest.withPosition(wrapTargetAngle(targetAngle.get())).withVelocity(0)));
+    return run(() -> turretMotor.setControl(positionRequest
+        .withPosition(wrapTargetAngle(targetAngle.get().plus(Degrees.of(turretOffset.getDouble(0.0)))))
+        .withVelocity(0)));
   }
 
   protected Command targetAngleWithVelocity(Supplier<Angle> targetAngle, Supplier<AngularVelocity> targetVelocity) {
-    return run(() -> turretMotor.setControl(
-        positionRequest.withPosition(wrapTargetAngle(targetAngle.get())).withVelocity(targetVelocity.get())));
+    return run(() -> turretMotor.setControl(positionRequest
+        .withPosition(wrapTargetAngle(targetAngle.get().plus(Degrees.of(turretOffset.getDouble(0.0)))))
+        .withVelocity(targetVelocity.get())));
   }
 
   public boolean atTarget() {

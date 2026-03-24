@@ -6,19 +6,23 @@ package frc.robot.subsystems;
 
 import com.revrobotics.PersistMode;
 import com.revrobotics.ResetMode;
+import com.revrobotics.sim.SparkFlexSim;
 import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkFlexConfig;
 import edu.wpi.first.epilogue.Logged;
+import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import java.util.function.BooleanSupplier;
 
 @Logged
 public class Indexer extends SubsystemBase {
 
   private SparkFlex ovalMotor = new SparkFlex(Constants.ovalId, MotorType.kBrushless);
+  private SparkFlexSim ovalSim = new SparkFlexSim(ovalMotor, DCMotor.getNeoVortex(1));
   private SparkFlex kickerMotor = new SparkFlex(Constants.kickerId, MotorType.kBrushless);
 
   /** Creates a new Indexer. */
@@ -41,6 +45,11 @@ public class Indexer extends SubsystemBase {
     // This method will be called once per scheduler run
   }
 
+  @Override
+  public void simulationPeriodic() {
+    ovalSim.iterate(0, 12, 0.02);
+  }
+
   public Command idleCommand() {
     return startRun(
         () -> {
@@ -57,5 +66,13 @@ public class Indexer extends SubsystemBase {
           kickerMotor.setVoltage(9.0);
         },
         () -> {});
+  }
+
+  public Command reverseIndexer() {
+    return startRun(() -> ovalMotor.setVoltage(-9.0), () -> {});
+  }
+
+  public Command reverseRunIndexer(BooleanSupplier condition) {
+    return reverseIndexer().until(condition).andThen(runIndexer());
   }
 }

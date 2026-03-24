@@ -13,6 +13,8 @@ import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.FollowPathCommand;
 import com.pathplanner.lib.events.EventTrigger;
 import edu.wpi.first.epilogue.Logged;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -26,12 +28,13 @@ import frc.robot.subsystems.Indexer;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Launcher.Launcher;
 import frc.robot.subsystems.Vision;
+import java.util.function.BooleanSupplier;
 
 @Logged
 public class RobotContainer {
   private double MaxSpeed =
       1.0 * TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
-  private double shootingMaxSpeed = MaxSpeed * 0.25;
+  private double shootingMaxSpeed = MaxSpeed * 0.1;
   private double currentMax = MaxSpeed;
   private double MaxAngularRate =
       RotationsPerSecond.of(0.75).in(RadiansPerSecond); // 3/4 of a rotation per second max angular velocity
@@ -48,14 +51,15 @@ public class RobotContainer {
 
   private final CommandXboxController joystick = new CommandXboxController(0);
 
+  private final Pose2d pose = new Pose2d(10.0, 2.0, Rotation2d.kZero);
+
   public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
   public final Launcher launcher = new Launcher(drivetrain);
   public final Intake intake = new Intake();
   public final Indexer indexer = new Indexer();
-  public final Vision vision =
-      new Vision(drivetrain::addVisionMeasurement, drivetrain::getEstimatedPose, drivetrain::getRotation3d);
+  public final Vision vision = new Vision(drivetrain::addVisionMeasurement, () -> pose, drivetrain::getRotation3d);
 
-  // public final AutoTagger tagger = new AutoTagger(drivetrain);
+  public final AutoTagger tagger = new AutoTagger(drivetrain, getShootCommand());
 
   private final SendableChooser<Command> autoChooser;
 
@@ -64,8 +68,9 @@ public class RobotContainer {
     autoChooser = AutoBuilder.buildAutoChooser("");
     SmartDashboard.putData("Auto Mode", autoChooser);
     SmartDashboard.putNumber("Auto Delay", 0.0);
-    // SmartDashboard.putData("Auto Tag", tagger.getChosser());
-    SmartDashboard.putData("Intake", intake);
+    SmartDashboard.putData("Auto Tag", tagger.getChosser());
+    SmartDashboard.putData("testLauncher", launcher.testCommand().alongWith(indexer.runIndexer()));
+    // SmartDashboard.putData(CommandScheduler.getInstance());
 
     configureBindings();
 
@@ -106,6 +111,9 @@ public class RobotContainer {
             .alongWith(intake.idleDeployed())
             .alongWith(Commands.runOnce(() -> currentMax = MaxSpeed)));
     joystick.leftTrigger().whileTrue(intake.intakeCommand()).onFalse(intake.idleDeployed());
+    joystick.leftBumper()
+        .whileTrue(intake.reverseIntake().alongWith(indexer.reverseIndexer()))
+        .onFalse(intake.idleDeployed().alongWith(indexer.idleCommand()));
 
     joystick.a().whileTrue(intake.agitate()).onFalse(intake.deployCommand());
 
@@ -125,23 +133,27 @@ public class RobotContainer {
   public void doNamedCommands() {
     NamedCommands.registerCommand(
         "runShooter",
-        Commands.parallel(
-                launcher.targetHub(),
-                Commands.waitUntil(launcher.launcherReady)
-                    .andThen(indexer.runIndexer()
-                        .alongWith(Commands.waitSeconds(4.0)
-                            .andThen(intake.agitate()))))
+        Commands.parallel(launcher.targetHub(), reverseRunCommand(launcher.launcherReady))
             .asProxy());
     NamedCommands.registerCommand("runIntake", intake.intakeCommand().asProxy());
     new EventTrigger("runIntake").onTrue(intake.intakeCommand().asProxy());
   }
 
   public Command getAutonomousCommand() {
-    return getCombinedCommand();
-    // Commands.sequence(autoChooser.getSelected(), tagger.getChosser().getSelected());
+    return // getCombinedCommand();
+    Commands.sequence(autoChooser.getSelected(), tagger.getChosser().getSelected());
   }
 
   public Command getCombinedCommand() {
     return autoChooser.getSelected();
+  }
+
+  public Command getShootCommand() {
+    return launcher.targetHub()
+        .alongWith(Commands.waitUntil(launcher.launcherReady).andThen(indexer.runIndexer()));
+  }
+
+  public Command reverseRunCommand(BooleanSupplier condition) {
+    return intake.reverseRunIntake(condition).alongWith(indexer.reverseRunIndexer(condition));
   }
 }

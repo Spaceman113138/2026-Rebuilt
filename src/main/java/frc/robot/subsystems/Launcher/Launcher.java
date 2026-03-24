@@ -9,13 +9,12 @@ import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.Rotation;
 
 import edu.wpi.first.epilogue.Logged;
-import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
@@ -35,16 +34,17 @@ public class Launcher extends SubsystemBase {
 
   public Trigger launcherReady = new Trigger(() -> flywheel.atTarget() && hood.atTarget() && turret.atTarget());
 
-  private LinearFilter distanceFilter = LinearFilter.movingAverage(20);
+  private boolean currentlyShooting = false;
+  private Pose2d mostRecentTarget = new Pose2d();
 
   /** Creates a new Launcher. */
   public Launcher(CommandSwerveDrivetrain Drivetrain) {
     drivetrain = Drivetrain;
 
-    SmartDashboard.putData("Flywheel", flywheel);
-    SmartDashboard.putData("Hood", hood);
-    SmartDashboard.putData("Turret", turret);
-    SmartDashboard.putData("Launcher", this);
+    // SmartDashboard.putData("Flywheel", flywheel);
+    // SmartDashboard.putData("Hood", hood);
+    // SmartDashboard.putData("Turret", turret);
+    // SmartDashboard.putData("Launcher", this);
 
     setDefaultCommand(runToZero());
   }
@@ -53,23 +53,27 @@ public class Launcher extends SubsystemBase {
   public void periodic() {
     // This method will be called once per scheduler run
     var dist = getTurretPose().getTranslation().getDistance(ShotCalculator.blueHubPose);
-    SmartDashboard.putNumber("distance to hub", dist);
-    SmartDashboard.putNumber("avg dist hub", distanceFilter.calculate(dist));
+    // SmartDashboard.putNumber("distance to hub", dist);
+    // SmartDashboard.putNumber("avg dist hub", distanceFilter.calculate(dist));
     if (DriverStation.getAlliance().orElseGet(() -> Alliance.Blue) == Alliance.Blue) {
       if (getTurretPose().getX() < 4.625594) {
-        bestShootingSolution =
-            ShotCalculator.getSOTMhubSolution(getTurretPose(), drivetrain.getFieldReletiveVelocity());
+        bestShootingSolution = currentlyShooting
+            ? ShotCalculator.getSOTMhubSolution(getTurretPose(), drivetrain.getFieldReletiveVelocity())
+            : ShotCalculator.getStaticHubSolution(getTurretPose());
       } else {
         bestShootingSolution = ShotCalculator.getPassingSolution(getTurretPose());
       }
     } else {
       if (getTurretPose().getX() > 16.540988 - 4.625594) {
-        bestShootingSolution =
-            ShotCalculator.getSOTMhubSolution(getTurretPose(), drivetrain.getFieldReletiveVelocity());
+        bestShootingSolution = currentlyShooting
+            ? ShotCalculator.getSOTMhubSolution(getTurretPose(), drivetrain.getFieldReletiveVelocity())
+            : ShotCalculator.getStaticHubSolution(getTurretPose());
       } else {
         bestShootingSolution = ShotCalculator.getPassingSolution(getTurretPose());
       }
     }
+
+    mostRecentTarget = ShotCalculator.mostRecentTarget;
   }
 
   private Command expose(Command internal) {
@@ -92,13 +96,21 @@ public class Launcher extends SubsystemBase {
   private Command targetBest() {
     return flywheel.runAtVelocity(() -> bestShootingSolution.flywheelSpeed())
         .alongWith(hood.targetAngle(() -> bestShootingSolution.hoodAngle()))
-        .alongWith(turret.targetAngle(() -> bestShootingSolution.turretAngle()));
+        .alongWith(turret.targetAngle(() -> bestShootingSolution.turretAngle()))
+        .alongWith(Commands.startEnd(() -> currentlyShooting = true, () -> currentlyShooting = false));
   }
 
   public Command targetDashboard() {
     return expose(flywheel.runAtDashboardVelocity()
         .alongWith(hood.targetDashboardAngle()
             .alongWith(turret.targetAngle(() -> bestShootingSolution.turretAngle()))));
+  }
+
+  public Command testCommand() {
+    return expose(flywheel.runAtVelocity(() -> 20.0)
+        .alongWith(hood.targetAngle(() -> bestShootingSolution.hoodAngle()))
+        .alongWith(turret.targetAngle(() -> bestShootingSolution.turretAngle()))
+        .alongWith(Commands.startEnd(() -> currentlyShooting = true, () -> currentlyShooting = false)));
   }
 
   public Pose2d getTurretPose() {

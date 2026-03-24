@@ -7,13 +7,13 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Left Start to Neutral"
+            "pathName": "Right Start to Neutral"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "Left Neutral intake to trench shot"
+            "pathName": "Right Neutral to Bump Shot"
           }
         },
         {
@@ -21,15 +21,15 @@
           "data": {
             "commands": [
               {
-                "type": "wait",
-                "data": {
-                  "waitTime": 4.0
-                }
-              },
-              {
                 "type": "named",
                 "data": {
                   "name": "runShooter"
+                }
+              },
+              {
+                "type": "wait",
+                "data": {
+                  "waitTime": 4.0
                 }
               }
             ]
@@ -38,29 +38,35 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Left Trench Shot to 2nd Sweep"
+            "pathName": "Right Bump Shot to Trench"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "Left 2nd Sweep to Bump Shot"
+            "pathName": "Right Trench Shot to 2nd Swipe"
           }
         },
         {
-          "type": "parallel",
+          "type": "path",
+          "data": {
+            "pathName": "Right 2nd Swipe to Trench Shot"
+          }
+        },
+        {
+          "type": "race",
           "data": {
             "commands": [
-              {
-                "type": "wait",
-                "data": {
-                  "waitTime": 4.0
-                }
-              },
               {
                 "type": "named",
                 "data": {
                   "name": "runShooter"
+                }
+              },
+              {
+                "type": "wait",
+                "data": {
+                  "waitTime": 4.0
                 }
               }
             ]

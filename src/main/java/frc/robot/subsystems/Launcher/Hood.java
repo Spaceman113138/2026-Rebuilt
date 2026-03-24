@@ -24,7 +24,6 @@ import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
 import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
@@ -57,6 +56,7 @@ class Hood extends SubsystemBase {
   private static final Angle hoodMax = Degree.of(40.0);
 
   private NetworkTableEntry hoodEntry = NetworkTableInstance.getDefault().getEntry("/tuning/hoodTarget");
+  private NetworkTableEntry hoodOffset = NetworkTableInstance.getDefault().getEntry("/adjustments/hoodOffset");
 
   Alert zeroedState = new Alert("Hood Failed To Zero", AlertType.kWarning);
 
@@ -65,6 +65,8 @@ class Hood extends SubsystemBase {
   public Hood() {
     hoodEntry.getTopic().genericPublish("double");
     hoodEntry.getTopic().setPersistent(true);
+    hoodOffset.getTopic().genericPublish("double");
+    hoodOffset.getTopic().setPersistent(true);
 
     hoodConfig.MotorOutput.withInverted(InvertedValue.Clockwise_Positive).withNeutralMode(NeutralModeValue.Coast);
     hoodConfig.Feedback.withSensorToMechanismRatio(motorToHoodRatio);
@@ -88,8 +90,8 @@ class Hood extends SubsystemBase {
     signalList.setUpdateFrequencyForAll(50);
     hoodMotor.optimizeBusUtilization();
 
-    SmartDashboard.putData("HoodCommand", targetDashboardAngle());
-    SmartDashboard.putData("ZeroHoodCommand", zeroHood());
+    // SmartDashboard.putData("HoodCommand", targetDashboardAngle());
+    // SmartDashboard.putData("ZeroHoodCommand", zeroHood());
 
     setDefaultCommand(targetAngle(() -> Degrees.of(15.0)));
   }
@@ -105,7 +107,7 @@ class Hood extends SubsystemBase {
   }
 
   public boolean atTarget() {
-    return positionRequest.getPositionMeasure().isNear(angleSignal.getValue(), Degree.of(1.0));
+    return positionRequest.getPositionMeasure().isNear(angleSignal.getValue(), Degree.of(3.0));
   }
 
   protected Command zeroHood() {
@@ -125,7 +127,8 @@ class Hood extends SubsystemBase {
   }
 
   protected Command targetAngle(Supplier<Angle> targetAngle) {
-    return run(() -> hoodMotor.setControl(positionRequest.withPosition(targetAngle.get())));
+    return run(() -> hoodMotor.setControl(
+        positionRequest.withPosition(targetAngle.get().plus(Degrees.of(hoodOffset.getDouble(0.0))))));
   }
 
   protected Command targetDashboardAngle() {

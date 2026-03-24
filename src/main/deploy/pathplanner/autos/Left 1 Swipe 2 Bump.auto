@@ -7,13 +7,19 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Right Start to Neutral"
+            "pathName": "Left Start to Neutral"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "Right Neutral to Trench Shot"
+            "pathName": "Left Neutral Intake to Bump Shot"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Left Bump Shot to Trench"
           }
         },
         {
@@ -21,15 +27,15 @@
           "data": {
             "commands": [
               {
-                "type": "wait",
-                "data": {
-                  "waitTime": 4.0
-                }
-              },
-              {
                 "type": "named",
                 "data": {
                   "name": "runShooter"
+                }
+              },
+              {
+                "type": "wait",
+                "data": {
+                  "waitTime": 4.0
                 }
               }
             ]

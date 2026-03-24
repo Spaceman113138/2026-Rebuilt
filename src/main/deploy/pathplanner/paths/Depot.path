@@ -8,28 +8,58 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 1.4863197935698185,
-        "y": 6.0
+        "x": 1.631139188843068,
+        "y": 6.008535112445852
       },
       "isLocked": false,
       "linkedName": "Depot Start"
     },
     {
       "anchor": {
-        "x": 0.7189518072289156,
+        "x": 0.74,
         "y": 6.0
       },
       "prevControl": {
-        "x": 1.1254241296261709,
+        "x": 0.9898578967494255,
+        "y": 6.008428014710087
+      },
+      "nextControl": {
+        "x": 0.4901421032505745,
+        "y": 5.991571985289913
+      },
+      "isLocked": false,
+      "linkedName": "Depot End"
+    },
+    {
+      "anchor": {
+        "x": 1.54,
         "y": 6.0
+      },
+      "prevControl": {
+        "x": 1.292553288114286,
+        "y": 6.035638809982215
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "Depot End"
+      "linkedName": null
     }
   ],
   "rotationTargets": [],
-  "constraintZones": [],
+  "constraintZones": [
+    {
+      "name": "Constraints Zone",
+      "minWaypointRelativePos": 0.6644159351789263,
+      "maxWaypointRelativePos": 2.0,
+      "constraints": {
+        "maxVelocity": 1.0,
+        "maxAcceleration": 0.5,
+        "maxAngularVelocity": 540.0,
+        "maxAngularAcceleration": 720.0,
+        "nominalVoltage": 12.0,
+        "unlimited": false
+      }
+    }
+  ],
   "pointTowardsZones": [],
   "eventMarkers": [],
   "globalConstraints": {
@@ -50,5 +80,5 @@
     "velocity": 0,
     "rotation": 180.0
   },
-  "useDefaultConstraints": true
+  "useDefaultConstraints": false
 }

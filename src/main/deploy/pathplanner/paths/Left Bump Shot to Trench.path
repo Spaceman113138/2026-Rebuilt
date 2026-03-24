@@ -3,32 +3,16 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 8.088858773181169,
-        "y": 5.076562054208274
+        "x": 2.7,
+        "y": 5.65
       },
       "prevControl": null,
       "nextControl": {
-        "x": 8.088858773181169,
-        "y": 7.305375690211276
+        "x": 1.6340896260092916,
+        "y": 7.776656422642147
       },
       "isLocked": false,
-      "linkedName": "Left Neutral Zone Intake"
-    },
-    {
-      "anchor": {
-        "x": 5.837532097004279,
-        "y": 7.525
-      },
-      "prevControl": {
-        "x": 6.9040361445783125,
-        "y": 7.357024096385541
-      },
-      "nextControl": {
-        "x": 5.349338175301026,
-        "y": 7.60189123667531
-      },
-      "isLocked": false,
-      "linkedName": null
+      "linkedName": "Left Bump Shot"
     },
     {
       "anchor": {
@@ -36,21 +20,26 @@
         "y": 7.030299572039943
       },
       "prevControl": {
-        "x": 2.5444944808928183,
-        "y": 7.025471675266576
+        "x": 2.2044555877472534,
+        "y": 6.72603788730574
       },
       "nextControl": null,
       "isLocked": false,
       "linkedName": "Left Trench Shot"
     }
   ],
-  "rotationTargets": [],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 0.6,
+      "rotationDegrees": -90.0
+    }
+  ],
   "constraintZones": [],
   "pointTowardsZones": [],
   "eventMarkers": [],
   "globalConstraints": {
     "maxVelocity": 3.0,
-    "maxAcceleration": 2.0,
+    "maxAcceleration": 3.0,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 720.0,
     "nominalVoltage": 12.0,
@@ -64,7 +53,7 @@
   "folder": "Left Auto Paths",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": -90.0
+    "rotation": -29.999999999999996
   },
-  "useDefaultConstraints": false
+  "useDefaultConstraints": true
 }

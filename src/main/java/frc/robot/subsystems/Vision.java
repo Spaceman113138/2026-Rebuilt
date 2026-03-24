@@ -18,11 +18,13 @@ import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.math.numbers.N8;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotState;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
+import java.util.Optional;
 import java.util.function.Supplier;
 import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonCamera;
@@ -54,8 +56,10 @@ public class Vision extends SubsystemBase {
   private Camera backCamera = new Camera(
       "BackCam",
       new Transform3d(
-          -0.295707 - .131,
-          0.288925 + 0.147,
+          - // 0.295026,
+          // 0.288846,
+          -0.426707, // Likely -0.295026
+          0.435925, // Likely 0.288846
           0.485,
           new Rotation3d(0.0, Math.toRadians(-15), Math.toRadians(180.0))),
       visionSim,
@@ -127,6 +131,9 @@ public class Vision extends SubsystemBase {
     private boolean usedPose = false;
     private double xyStd = 0.0;
     private double angStd = 0.0;
+    private boolean setIntrinsics = false;
+    private Optional<Matrix<N3, N3>> cameraMatrix;
+    private Optional<Matrix<N8, N1>> distCoeff;
 
     private static final double enabledXyStd = 0.1;
     private static final double enabledAngStd = 0.1;
@@ -156,9 +163,18 @@ public class Vision extends SubsystemBase {
         PhotonCameraSim simCamera = new PhotonCameraSim(camera, cameraProp);
         visionSim.addCamera(simCamera, robotToCameraTransform);
       }
+
+      cameraMatrix = camera.getCameraMatrix();
+      distCoeff = camera.getDistCoeffs();
     }
 
     public void update(EstimateConsumer visionConsumer) {
+      if (!setIntrinsics) {
+        cameraMatrix = camera.getCameraMatrix();
+        distCoeff = camera.getDistCoeffs();
+        setIntrinsics = cameraMatrix.isPresent() && distCoeff.isPresent();
+      }
+
       usedPose = false;
       for (PhotonPipelineResult result : camera.getAllUnreadResults()) {
         var estimate = poseEstimator.estimateCoprocMultiTagPose(result);
@@ -167,11 +183,17 @@ public class Vision extends SubsystemBase {
           if (estimate.isEmpty()) {
             continue;
           }
-          // If using lowestAmbiguity then camera can only see one tag so index 0 is the tag used
-          if (estimate.get().targetsUsed.get(0).poseAmbiguity > 0.25) {
-            continue;
-          }
+          // // If using lowestAmbiguity then camera can only see one tag so index 0 is the tag used
+          // if (estimate.get().targetsUsed.get(0).poseAmbiguity > 0.25) {
+          //   continue;
+          // }
         }
+
+        // if (setIntrinsics && DriverStation.isEnabled()) {
+        //   var constrained = poseEstimator.estimateConstrainedSolvepnpPose(result, cameraMatrix.get(),
+        // distCoeff.get(), estimate.get().estimatedPose, false, 0.5);
+        //   estimate = constrained.isPresent() ? constrained : estimate;
+        // }
 
         var tempEstimatedPose = estimate.get().estimatedPose;
         // Check if estimated pose is within the field
@@ -201,7 +223,7 @@ public class Vision extends SubsystemBase {
           angStd = 1.0;
         }
 
-        if (Robot.isReal()) {
+        if (true) {
           usedPose = true;
           visionConsumer.accept(
               estimatedPose.estimatedPose.toPose2d(),

@@ -26,7 +26,6 @@ import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
@@ -52,12 +51,15 @@ public class Flywheel extends SubsystemBase {
   private VoltageOut voltageRequest = new VoltageOut(0.0);
 
   private NetworkTableEntry speedEntry = NetworkTableInstance.getDefault().getEntry("/tuning/flywheelTarget");
+  private NetworkTableEntry speedOffset = NetworkTableInstance.getDefault().getEntry("/adjustments/flywheelOffset");
 
   /** Creates a new Flywheel. */
   public Flywheel() {
 
     speedEntry.getTopic().genericPublish("double");
     speedEntry.getTopic().setPersistent(true);
+    speedOffset.getTopic().genericPublish("double");
+    speedOffset.getTopic().setPersistent(true);
 
     leftFlywheelMotor.getConfigurator().apply(motorConfig());
     rightFlywheelMotor.getConfigurator().apply(motorConfig());
@@ -67,7 +69,7 @@ public class Flywheel extends SubsystemBase {
     simState.setSupplyVoltage(Volts.of(12));
     simState.setMotorType(MotorType.KrakenX60);
 
-    SmartDashboard.putData("tuning/flywheelRun", runAtDashboardVelocity());
+    // SmartDashboard.putData("tuning/flywheelRun", runAtDashboardVelocity());
     setDefaultCommand(idleCommand());
   }
 
@@ -78,7 +80,7 @@ public class Flywheel extends SubsystemBase {
         .withStatorCurrentLimitEnable(true)
         .withStatorCurrentLimit(80)
         .withSupplyCurrentLimitEnable(true)
-        .withSupplyCurrentLimit(40);
+        .withSupplyCurrentLimit(30);
 
     motorConfig
         .MotorOutput
@@ -143,8 +145,8 @@ public class Flywheel extends SubsystemBase {
   }
 
   protected Command runAtVelocity(DoubleSupplier desiredVelocity) {
-    return run(
-        () -> leftFlywheelMotor.setControl(velocityControlRequest.withVelocity(desiredVelocity.getAsDouble())));
+    return run(() -> leftFlywheelMotor.setControl(
+        velocityControlRequest.withVelocity(desiredVelocity.getAsDouble() + speedOffset.getDouble(0.0))));
   }
 
   protected Command runAtDashboardVelocity() {

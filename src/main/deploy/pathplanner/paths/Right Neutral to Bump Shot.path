@@ -3,68 +3,73 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 8.088858773181169,
-        "y": 5.076562054208274
+        "x": 7.970000000000001,
+        "y": 2.88
       },
       "prevControl": null,
       "nextControl": {
-        "x": 8.088858773181169,
-        "y": 7.305375690211276
+        "x": 5.688630527817404,
+        "y": 2.851112696148359
       },
       "isLocked": false,
-      "linkedName": "Left Neutral Zone Intake"
+      "linkedName": "Right Neutral Intake"
     },
     {
       "anchor": {
-        "x": 5.837532097004279,
-        "y": 7.525
+        "x": 5.915164051355206,
+        "y": 2.4
       },
       "prevControl": {
-        "x": 6.9040361445783125,
-        "y": 7.357024096385541
+        "x": 6.717778180557982,
+        "y": 2.4
       },
       "nextControl": {
-        "x": 5.349338175301026,
-        "y": 7.60189123667531
+        "x": 3.9739770716184877,
+        "y": 2.3999999999999995
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 2.0076890156918683,
-        "y": 7.030299572039943
+        "x": 2.7,
+        "y": 2.4
       },
       "prevControl": {
-        "x": 2.5444944808928183,
-        "y": 7.025471675266576
+        "x": 2.95,
+        "y": 2.4
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "Left Trench Shot"
+      "linkedName": "Right Bump Shot but good"
     }
   ],
-  "rotationTargets": [],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 0.8699360341151351,
+      "rotationDegrees": 29.999999999999996
+    }
+  ],
   "constraintZones": [],
   "pointTowardsZones": [],
   "eventMarkers": [],
   "globalConstraints": {
     "maxVelocity": 3.0,
-    "maxAcceleration": 2.0,
+    "maxAcceleration": 3.0,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 720.0,
     "nominalVoltage": 12.0,
     "unlimited": false
   },
   "goalEndState": {
-    "velocity": 0,
-    "rotation": -90.0
+    "velocity": 0.0,
+    "rotation": 29.999999999999996
   },
   "reversed": false,
-  "folder": "Left Auto Paths",
+  "folder": "Right Auto Paths",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": -90.0
+    "rotation": 90.0
   },
-  "useDefaultConstraints": false
+  "useDefaultConstraints": true
 }

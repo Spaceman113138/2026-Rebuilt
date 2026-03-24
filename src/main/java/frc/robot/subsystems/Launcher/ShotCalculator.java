@@ -8,6 +8,7 @@ import static edu.wpi.first.units.Units.Degrees;
 
 import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.units.measure.Angle;
@@ -20,8 +21,12 @@ import frc.robot.Util.ExtrapolatingDoubleTreeMap;
 public class ShotCalculator {
   private static final Translation2d redHubPose = new Translation2d(11.915394, 4.021328);
   public static final Translation2d blueHubPose = new Translation2d(4.625594, 4.021328);
-  private static final Translation2d blueRightPass = new Translation2d(0.5, 1.0);
-  private static final Translation2d blueLeftPass = new Translation2d(0.5, 9.0 - 1.177);
+  private static final Translation2d blueRightPass = new Translation2d(0.5, 2.0);
+  private static final Translation2d blueLeftPass = new Translation2d(0.5, 6);
+  private static final Translation2d redRightPass = new Translation2d(15, 2.0);
+  private static final Translation2d redLeftPass = new Translation2d(15, 6.0);
+  public static Pose2d mostRecentTarget = new Pose2d();
+
   private static Translation2d targetPose = Translation2d.kZero;
   private static final int NumItterations = 20;
 
@@ -35,8 +40,9 @@ public class ShotCalculator {
     tofMap.put(3.049, 1.32);
     tofMap.put(3.515, 1.33);
     tofMap.put(4.011, 1.35);
-    tofMap.put(5.4, 1.38);
+    tofMap.put(4.5, 1.36);
     tofMap.put(5.0, 1.37);
+    tofMap.put(5.4, 1.38);
   }
 
   private static InterpolatingDoubleTreeMap hoodMap = new InterpolatingDoubleTreeMap();
@@ -47,8 +53,10 @@ public class ShotCalculator {
     hoodMap.put(3.049, 29.0);
     hoodMap.put(3.515, 30.0);
     hoodMap.put(4.011, 31.0);
-    hoodMap.put(5.4, 37.0);
+    hoodMap.put(4.5, 33.4);
     hoodMap.put(5.0, 35.0);
+    hoodMap.put(5.4, 37.0);
+    hoodMap.put(30.0, 37.0);
   }
 
   private static InterpolatingDoubleTreeMap flywheelMap = new InterpolatingDoubleTreeMap();
@@ -58,10 +66,11 @@ public class ShotCalculator {
     flywheelMap.put(2.51, 73.0);
     flywheelMap.put(3.049, 74.0);
     flywheelMap.put(3.515, 77.0);
-    flywheelMap.put(
-      4.011, 80.0);
+    flywheelMap.put(4.011, 80.0);
+    flywheelMap.put(4.5, 82.0);
     flywheelMap.put(5.4, 87.0);
     flywheelMap.put(5.0, 85.0);
+    flywheelMap.put(8.0, 93.0);
   }
 
   public static double getFlywheelSpeed(double distance) {
@@ -94,10 +103,12 @@ public class ShotCalculator {
 
   public static ShootingSolution getPassingSolution(Pose2d turretPose) {
     if (DriverStation.getAlliance().orElseGet(() -> Alliance.Blue) == Alliance.Blue) {
-      targetPose = (turretPose.getY() < 2.0) ? blueRightPass : blueLeftPass;
+      targetPose = (turretPose.getY() < 4.0) ? blueRightPass : blueLeftPass;
     } else {
-      targetPose = redHubPose;
+      targetPose = (turretPose.getY() < 4.0) ? redRightPass : redLeftPass;
     }
+
+    mostRecentTarget = new Pose2d(targetPose, Rotation2d.kZero);
 
     Translation2d difference = targetPose.minus(turretPose.getTranslation());
     double distance = difference.getNorm();
@@ -105,7 +116,7 @@ public class ShotCalculator {
     Angle turretAngle =
         difference.getAngle().minus(turretPose.getRotation()).getMeasure();
 
-    return new ShootingSolution(turretAngle, Degrees.of(hoodMap.get(distance)), flywheelMap.get(distance) - 10.0);
+    return new ShootingSolution(turretAngle, Degrees.of(hoodMap.get(distance)), flywheelMap.get(distance) - 5.0);
   }
 
   public static ShootingSolution getSOTMhubSolution(Pose2d turretPose, Translation2d robotVelocity) {
