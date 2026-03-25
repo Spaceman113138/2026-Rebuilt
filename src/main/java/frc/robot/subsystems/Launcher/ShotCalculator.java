@@ -29,6 +29,7 @@ public class ShotCalculator {
 
   private static Translation2d targetPose = Translation2d.kZero;
   private static final int NumItterations = 20;
+  public static final Pose2d[] intermediateTargets = new Pose2d[NumItterations];
 
   public record ShootingSolution(Angle turretAngle, Angle hoodAngle, double flywheelSpeed) {}
 
@@ -139,6 +140,8 @@ public class ShotCalculator {
       double offsetX = robotVelocity.getX() * timeOfFlight;
       double offsetY = robotVelocity.getY() * timeOfFlight;
       lookaheadPose = targetPose.plus(new Translation2d(offsetX, offsetY));
+      intermediateTargets[i] =
+          new Pose2d(lookaheadPose.minus(robotVelocity.times(timeOfFlight)), Rotation2d.kZero);
       lookaheadLauncherToTargetDistance = launcherPosition.getDistance(lookaheadPose);
     }
 
