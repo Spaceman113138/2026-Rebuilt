@@ -38,6 +38,8 @@ public class RobotContainer {
   private double currentMax = MaxSpeed;
   private double MaxAngularRate =
       RotationsPerSecond.of(0.75).in(RadiansPerSecond); // 3/4 of a rotation per second max angular velocity
+  private double shootingMaxRotation = MaxAngularRate * 0.1;
+  private double currentMaxRotation = MaxAngularRate;
 
   /* Setting up bindings for necessary control of the swerve drive platform */
   private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
@@ -57,7 +59,8 @@ public class RobotContainer {
   public final Launcher launcher = new Launcher(drivetrain);
   public final Intake intake = new Intake();
   public final Indexer indexer = new Indexer();
-  public final Vision vision = new Vision(drivetrain::addVisionMeasurement, () -> pose, drivetrain::getRotation3d);
+  public final Vision vision =
+      new Vision(drivetrain::addVisionMeasurement, () -> pose, drivetrain::getPigeonRotation);
 
   public final AutoTagger tagger = new AutoTagger(drivetrain, getShootCommand());
 
@@ -89,7 +92,7 @@ public class RobotContainer {
                 .withVelocityY(Math.pow(-joystick.getLeftX(), 3) * currentMax
                     + drivetrain.getTrenchOffset()) // Drive left with negative X (left)
                 .withRotationalRate(-joystick.getRightX()
-                    * MaxAngularRate) // Drive counterclockwise with negative X (left)
+                    * currentMaxRotation) // Drive counterclockwise with negative X (left)
             ));
 
     // Idle while the robot is disabled. This ensures the configured
@@ -106,14 +109,18 @@ public class RobotContainer {
     joystick.rightTrigger()
         .whileTrue(launcher.targetHub()
             .alongWith(Commands.waitUntil(launcher.launcherReady).andThen(indexer.runIndexer()))
-            .alongWith(Commands.runOnce(() -> currentMax = shootingMaxSpeed)))
-        .whileFalse(indexer.idleCommand()
-            .alongWith(intake.idleDeployed())
-            .alongWith(Commands.runOnce(() -> currentMax = MaxSpeed)));
+            .alongWith(Commands.runOnce(() -> {
+              currentMax = shootingMaxSpeed;
+              currentMaxRotation = shootingMaxRotation;
+            })))
+        .whileFalse(
+            indexer.idleCommand().alongWith(intake.idleDeployed()).alongWith(Commands.runOnce(() -> {
+              currentMax = MaxSpeed;
+              currentMaxRotation = MaxAngularRate;
+            })));
     joystick.leftTrigger().whileTrue(intake.intakeCommand()).onFalse(intake.idleDeployed());
-    joystick.leftBumper()
-        .whileTrue(intake.reverseIntake().alongWith(indexer.reverseIndexer()))
-        .onFalse(intake.idleDeployed().alongWith(indexer.idleCommand()));
+    joystick.leftBumper().whileTrue(intake.reverseIntake());
+    joystick.rightBumper().whileTrue(indexer.reverseIndexer());
 
     joystick.a().whileTrue(intake.agitate()).onFalse(intake.deployCommand());
 

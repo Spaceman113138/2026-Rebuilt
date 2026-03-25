@@ -177,4 +177,8 @@ class Turret extends SubsystemBase {
   private Command targetDashboardAngle() {
     return targetAngle(() -> Degrees.of(turretEntry.getDouble(0)));
   }
+
+  protected void setDesiredVelo(AngularVelocity desiredVelo) {
+    positionRequest.withVelocity(desiredVelo);
+  }
 }

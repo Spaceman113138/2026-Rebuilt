@@ -6,11 +6,16 @@ package frc.robot.subsystems.Launcher;
 
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Inches;
+import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.Rotation;
+import static edu.wpi.first.units.Units.Seconds;
 
 import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -30,12 +35,16 @@ public class Launcher extends SubsystemBase {
 
   private ShootingSolution bestShootingSolution = new ShootingSolution(Degrees.of(0), Degrees.of(0), 0);
 
-  private static Translation2d turretOffset = new Translation2d(Inches.of(-2.684942), Inches.of(-3.674131));
+  public static Translation2d turretOffset = new Translation2d(Inches.of(-2.684942), Inches.of(-3.674131));
 
   public Trigger launcherReady = new Trigger(() -> flywheel.atTarget() && hood.atTarget() && turret.atTarget());
 
   private boolean currentlyShooting = false;
   private Pose2d mostRecentTarget = new Pose2d();
+  private Pose2d[] intermediateTargets = new Pose2d[20];
+  private double distance = 0.0;
+
+  // private LinearFilter distanceFilter = LinearFilter.movingAverage(20);
 
   /** Creates a new Launcher. */
   public Launcher(CommandSwerveDrivetrain Drivetrain) {
@@ -52,28 +61,45 @@ public class Launcher extends SubsystemBase {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
-    var dist = getTurretPose().getTranslation().getDistance(ShotCalculator.blueHubPose);
-    // SmartDashboard.putNumber("distance to hub", dist);
-    // SmartDashboard.putNumber("avg dist hub", distanceFilter.calculate(dist));
+    distance = getTurretPose().getTranslation().getDistance(ShotCalculator.blueHubPose);
+
+    var velocity = drivetrain.getFieldReletiveVelocity();
+    bestShootingSolution = getBestShootingSolution(getTurretPose(), velocity);
+    turret.setDesiredVelo(RadiansPerSecond.of(velocity.omegaRadiansPerSecond));
+
+    // var estDisplacement = new Translation2d(velocity.vxMetersPerSecond * 0.02, velocity.vyMetersPerSecond * 0.02);
+    // var estNextRobotPose = new Pose2d(
+    //     drivetrain.getEstimatedPose().getTranslation().plus(estDisplacement),
+    //     drivetrain
+    //         .getEstimatedPose()
+    //         .getRotation()
+    //         .plus(new Rotation2d(velocity.omegaRadiansPerSecond * 0.02)));
+    // var estNextBestShot = getBestShootingSolution(findTurretPose(estNextRobotPose), velocity);
+    // AngularVelocity estTurretVelo = estNextBestShot.turretAngle().minus(bestShootingSolution.turretAngle()).div(Seconds.of(0.02));
+    // turret.setDesiredVelo(estTurretVelo);
+
+    intermediateTargets = ShotCalculator.intermediateTargets;
+    mostRecentTarget = ShotCalculator.mostRecentTarget;
+  }
+
+  private ShootingSolution getBestShootingSolution(Pose2d turretPose, ChassisSpeeds robotSpeeds) {
     if (DriverStation.getAlliance().orElseGet(() -> Alliance.Blue) == Alliance.Blue) {
-      if (getTurretPose().getX() < 4.625594) {
-        bestShootingSolution = currentlyShooting
-            ? ShotCalculator.getSOTMhubSolution(getTurretPose(), drivetrain.getFieldReletiveVelocity())
-            : ShotCalculator.getStaticHubSolution(getTurretPose());
+      if (turretPose.getX() < 4.625594) {
+        return currentlyShooting
+            ? ShotCalculator.getSOTMhubSolution(turretPose, robotSpeeds)
+            : ShotCalculator.getStaticHubSolution(turretPose);
       } else {
-        bestShootingSolution = ShotCalculator.getPassingSolution(getTurretPose());
+        return ShotCalculator.getPassingSolution(turretPose);
       }
     } else {
-      if (getTurretPose().getX() > 16.540988 - 4.625594) {
-        bestShootingSolution = currentlyShooting
-            ? ShotCalculator.getSOTMhubSolution(getTurretPose(), drivetrain.getFieldReletiveVelocity())
-            : ShotCalculator.getStaticHubSolution(getTurretPose());
+      if (turretPose.getX() > 16.540988 - 4.625594) {
+        return currentlyShooting
+            ? ShotCalculator.getSOTMhubSolution(turretPose, robotSpeeds)
+            : ShotCalculator.getStaticHubSolution(turretPose);
       } else {
-        bestShootingSolution = ShotCalculator.getPassingSolution(getTurretPose());
+        return ShotCalculator.getPassingSolution(turretPose);
       }
     }
-
-    mostRecentTarget = ShotCalculator.mostRecentTarget;
   }
 
   private Command expose(Command internal) {
@@ -118,5 +144,11 @@ public class Launcher extends SubsystemBase {
     return new Pose2d(
         curentPose.getTranslation().plus(turretOffset.rotateBy(curentPose.getRotation())),
         curentPose.getRotation());
+  }
+
+  public Pose2d findTurretPose(Pose2d robotPose) {
+    return new Pose2d(
+        robotPose.getTranslation().plus(turretOffset.rotateBy(robotPose.getRotation())),
+        robotPose.getRotation());
   }
 }
