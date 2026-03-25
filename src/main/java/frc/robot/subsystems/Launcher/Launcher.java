@@ -30,7 +30,7 @@ public class Launcher extends SubsystemBase {
 
   private ShootingSolution bestShootingSolution = new ShootingSolution(Degrees.of(0), Degrees.of(0), 0);
 
-  private static Translation2d turretOffset = new Translation2d(Inches.of(-2.684942), Inches.of(-3.674131));
+  public static Translation2d turretOffset = new Translation2d(Inches.of(-2.684942), Inches.of(-3.674131));
 
   public Trigger launcherReady = new Trigger(() -> flywheel.atTarget() && hood.atTarget() && turret.atTarget());
 

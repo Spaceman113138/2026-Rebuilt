@@ -11,6 +11,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.units.measure.Angle;
@@ -28,6 +29,9 @@ public class ShotCalculator {
   private static final Translation2d redRightPass = new Translation2d(15, 2.0);
   private static final Translation2d redLeftPass = new Translation2d(15, 6.0);
   public static Pose2d mostRecentTarget = new Pose2d();
+
+  private static Translation2d turretPerpVector =
+      new Translation2d(-Launcher.turretOffset.getY(), Launcher.turretOffset.getX());
 
   private static Translation2d targetPose = Translation2d.kZero;
   private static final int NumItterations = 20;
@@ -134,11 +138,17 @@ public class ShotCalculator {
     return new ShootingSolution(turretAngle, Degrees.of(hoodMap.get(distance)), flywheelMap.get(distance) - 2.0);
   }
 
-  public static ShootingSolution getSOTMhubSolution(Pose2d turretPose, Translation2d robotVelocity) {
+  public static ShootingSolution getSOTMhubSolution(Pose2d turretPose, ChassisSpeeds robotVelocity) {
     if (DriverStation.getAlliance().orElseGet(() -> Alliance.Blue) == Alliance.Blue) {
       targetPose = blueHubPose;
     } else {
       targetPose = redHubPose;
+    }
+
+    var rotLinearVelocity = turretPerpVector.times(0.0);
+    if (false) {
+      var adjPerp = turretPerpVector.rotateBy(turretPose.getRotation());
+      rotLinearVelocity = adjPerp.times(robotVelocity.omegaRadiansPerSecond * Launcher.turretOffset.getNorm());
     }
 
     Translation2d launcherPosition = turretPose.getTranslation();
@@ -152,8 +162,8 @@ public class ShotCalculator {
     for (int i = 0; i < NumItterations; i++) {
       timeOfFlight = tofMap.get(launcherToTargetDistance);
       timeOfFlight = timeOfFlight * tofMult.getDouble(1.0) + tofAdd.getDouble(0.0);
-      double offsetX = robotVelocity.getX() * timeOfFlight;
-      double offsetY = robotVelocity.getY() * timeOfFlight;
+      double offsetX = (robotVelocity.vxMetersPerSecond + rotLinearVelocity.getX()) * timeOfFlight;
+      double offsetY = (robotVelocity.vyMetersPerSecond + rotLinearVelocity.getY()) * timeOfFlight;
       lookaheadPose = targetPose.minus(new Translation2d(offsetX, offsetY));
       intermediateTargets[i] = new Pose2d(lookaheadPose, Rotation2d.kZero);
       lookaheadLauncherToTargetDistance = launcherPosition.getDistance(lookaheadPose);
