@@ -69,7 +69,12 @@ public class Indexer extends SubsystemBase {
   }
 
   public Command reverseIndexer() {
-    return startRun(() -> ovalMotor.setVoltage(-9.0), () -> {});
+    return startRun(
+        () -> {
+          ovalMotor.setVoltage(-9.0);
+          kickerMotor.setVoltage(-9.0);
+        },
+        () -> {});
   }
 
   public Command reverseRunIndexer(BooleanSupplier condition) {

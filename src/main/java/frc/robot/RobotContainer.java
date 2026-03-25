@@ -57,7 +57,8 @@ public class RobotContainer {
   public final Launcher launcher = new Launcher(drivetrain);
   public final Intake intake = new Intake();
   public final Indexer indexer = new Indexer();
-  public final Vision vision = new Vision(drivetrain::addVisionMeasurement, () -> pose, drivetrain::getRotation3d);
+  public final Vision vision =
+      new Vision(drivetrain::addVisionMeasurement, () -> pose, drivetrain::getPigeonRotation);
 
   public final AutoTagger tagger = new AutoTagger(drivetrain, getShootCommand());
 
@@ -111,9 +112,8 @@ public class RobotContainer {
             .alongWith(intake.idleDeployed())
             .alongWith(Commands.runOnce(() -> currentMax = MaxSpeed)));
     joystick.leftTrigger().whileTrue(intake.intakeCommand()).onFalse(intake.idleDeployed());
-    joystick.leftBumper()
-        .whileTrue(intake.reverseIntake().alongWith(indexer.reverseIndexer()))
-        .onFalse(intake.idleDeployed().alongWith(indexer.idleCommand()));
+    joystick.leftBumper().whileTrue(intake.reverseIntake());
+    joystick.rightBumper().whileTrue(indexer.reverseIndexer());
 
     joystick.a().whileTrue(intake.agitate()).onFalse(intake.deployCommand());
 

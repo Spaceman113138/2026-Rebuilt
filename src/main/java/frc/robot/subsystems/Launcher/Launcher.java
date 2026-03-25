@@ -34,7 +34,12 @@ public class Launcher extends SubsystemBase {
 
   public Trigger launcherReady = new Trigger(() -> flywheel.atTarget() && hood.atTarget() && turret.atTarget());
 
-  private LinearFilter distanceFilter = LinearFilter.movingAverage(20);
+  private boolean currentlyShooting = false;
+  private Pose2d mostRecentTarget = new Pose2d();
+  private Pose2d[] intermediateTargets = new Pose2d[20];
+  private double distance = 0.0;
+
+  // private LinearFilter distanceFilter = LinearFilter.movingAverage(20);
 
   /** Creates a new Launcher. */
   public Launcher(CommandSwerveDrivetrain Drivetrain) {
@@ -51,9 +56,8 @@ public class Launcher extends SubsystemBase {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
-    var dist = getTurretPose().getTranslation().getDistance(ShotCalculator.blueHubPose);
-    SmartDashboard.putNumber("distance to hub", dist);
-    SmartDashboard.putNumber("avg dist hub", distanceFilter.calculate(dist));
+    distance = getTurretPose().getTranslation().getDistance(ShotCalculator.blueHubPose);
+
     if (DriverStation.getAlliance().orElseGet(() -> Alliance.Blue) == Alliance.Blue) {
       if (getTurretPose().getX() < 4.625594) {
         bestShootingSolution = currentlyShooting
@@ -71,6 +75,9 @@ public class Launcher extends SubsystemBase {
         bestShootingSolution = ShotCalculator.getPassingSolution(getTurretPose());
       }
     }
+
+    intermediateTargets = ShotCalculator.intermediateTargets;
+    mostRecentTarget = ShotCalculator.mostRecentTarget;
   }
 
   private Command expose(Command internal) {

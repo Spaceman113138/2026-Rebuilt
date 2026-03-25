@@ -93,6 +93,8 @@ public class Intake extends SubsystemBase {
       absoluteEncoderAlert.set(true);
     }
 
+    pivotMotor.getEncoder().setPosition(storePosition);
+
     SmartDashboard.putBoolean("UsePivotInternal", false);
   }
 

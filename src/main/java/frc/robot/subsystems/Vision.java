@@ -7,6 +7,7 @@ package frc.robot.subsystems;
 import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.Meters;
 
+import com.ctre.phoenix6.StatusSignal.SignalMeasurement;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.epilogue.Logged;
@@ -19,6 +20,7 @@ import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.numbers.N8;
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotState;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -39,7 +41,7 @@ public class Vision extends SubsystemBase {
   // Sim stuff
   VisionSystemSim visionSim = new VisionSystemSim("main");
   Supplier<Pose2d> poseSupplier;
-  Supplier<Rotation3d> pigeonRotationSupplier;
+  Supplier<SignalMeasurement<Angle>> pigeonRotationSupplier;
   private boolean useSim = false;
 
   private EstimateConsumer estimateConsumer;
@@ -82,7 +84,9 @@ public class Vision extends SubsystemBase {
 
   /** Creates a new Vision. */
   public Vision(
-      EstimateConsumer poseConsumer, Supplier<Pose2d> simPoseSupplier, Supplier<Rotation3d> headingSupplier) {
+      EstimateConsumer poseConsumer,
+      Supplier<Pose2d> simPoseSupplier,
+      Supplier<SignalMeasurement<Angle>> headingSupplier) {
     estimateConsumer = poseConsumer;
     poseSupplier = simPoseSupplier;
     pigeonRotationSupplier = headingSupplier;
@@ -106,7 +110,7 @@ public class Vision extends SubsystemBase {
       return;
     }
     for (var camera : cameras) {
-      camera.update(estimateConsumer);
+      camera.update(estimateConsumer, pigeonRotationSupplier.get());
     }
   }
 
@@ -168,32 +172,35 @@ public class Vision extends SubsystemBase {
       distCoeff = camera.getDistCoeffs();
     }
 
-    public void update(EstimateConsumer visionConsumer) {
+    public void update(EstimateConsumer visionConsumer, SignalMeasurement<Angle> rotationSupplier) {
       if (!setIntrinsics) {
         cameraMatrix = camera.getCameraMatrix();
         distCoeff = camera.getDistCoeffs();
         setIntrinsics = cameraMatrix.isPresent() && distCoeff.isPresent();
       }
-
       usedPose = false;
+      poseEstimator.addHeadingData(rotationSupplier.timestamp, new Rotation2d(rotationSupplier.value));
+
+      // actual vision stuff
       for (PhotonPipelineResult result : camera.getAllUnreadResults()) {
         var estimate = poseEstimator.estimateCoprocMultiTagPose(result);
         if (estimate.isEmpty()) {
           estimate = poseEstimator.estimateLowestAmbiguityPose(result);
-          if (estimate.isEmpty()) {
-            continue;
-          }
-          // // If using lowestAmbiguity then camera can only see one tag so index 0 is the tag used
-          // if (estimate.get().targetsUsed.get(0).poseAmbiguity > 0.25) {
-          //   continue;
-          // }
         }
 
-        // if (setIntrinsics && DriverStation.isEnabled()) {
-        //   var constrained = poseEstimator.estimateConstrainedSolvepnpPose(result, cameraMatrix.get(),
-        // distCoeff.get(), estimate.get().estimatedPose, false, 0.5);
-        //   estimate = constrained.isPresent() ? constrained : estimate;
-        // }
+        if (setIntrinsics) {
+          estimate = poseEstimator.estimateConstrainedSolvepnpPose(
+              result,
+              cameraMatrix.get(),
+              distCoeff.get(),
+              estimate.get().estimatedPose,
+              DriverStation.isEnabled(),
+              0.5);
+        }
+
+        if (estimate.isEmpty()) {
+          continue;
+        }
 
         var tempEstimatedPose = estimate.get().estimatedPose;
         // Check if estimated pose is within the field
@@ -220,7 +227,7 @@ public class Vision extends SubsystemBase {
         angStd = angStd * distance * distance;
 
         if (!RobotState.isDisabled()) {
-          angStd = 1.0;
+          angStd = Double.MAX_VALUE;
         }
 
         if (true) {
